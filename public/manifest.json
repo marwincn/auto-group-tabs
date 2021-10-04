@@ -10,16 +10,16 @@
   "action": {
     "default_popup": "index.html",
     "default_icon": {
-      "16": "/images/get_started16.png",
-      "32": "/images/get_started32.png",
-      "48": "/images/get_started48.png",
-      "128": "/images/get_started128.png"
+      "16": "/images/auto-group-tabs.png",
+      "32": "/images/auto-group-tabs.png",
+      "48": "/images/auto-group-tabs.png",
+      "128": "/images/auto-group-tabs.png"
     }
   },
   "icons": {
-    "16": "/images/get_started16.png",
-    "32": "/images/get_started32.png",
-    "48": "/images/get_started48.png",
-    "128": "/images/get_started128.png"
+    "16": "/images/auto-group-tabs.png",
+    "32": "/images/auto-group-tabs.png",
+    "48": "/images/auto-group-tabs.png",
+    "128": "/images/auto-group-tabs.png"
   }
 }
