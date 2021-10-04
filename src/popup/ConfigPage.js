@@ -70,7 +70,7 @@ class ConfigPage extends React.Component {
         <Form layout="vertical" style={{padding: "20px"}}>
           <Form.Item style={{textAlign: "center"}}>
             <Button type="primary" shape="round" icon={<InboxOutlined />} onClick={this.onManuallyUpdateClick}>
-              Update all tabs right now!
+              Group all tabs right now!
             </Button>
           </Form.Item>
           <Form.Item label="Enable auto group tabs">
