@@ -65,12 +65,12 @@ class ConfigPage extends React.Component {
 
   render() {
     return (
-      <div style={{ width: "580px", height: "255px", overflow: "auto" }}>
+      <div style={{ width: "300px", height: "400px", overflow: "auto" }}>
         <Form
-          labelCol={{ span: 10 }}
-          wrapperCol={{ span: 14 }}
+          // labelCol={{ span: 10 }}
+          // wrapperCol={{ span: 14 }}
           labelAlign="left"
-          layout="horizontal"
+          layout="vertical"
           style={{ padding: "15px" }}
         >
           {/* <Form.Item style={{textAlign: "center"}}>
