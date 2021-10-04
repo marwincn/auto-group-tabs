@@ -1,11 +1,11 @@
 import React from "react";
-import { Form, Switch, Radio, InputNumber, Button, Input } from "antd";
-import { InboxOutlined } from '@ant-design/icons';
+import { Form, Switch, Radio, InputNumber, Input } from "antd";
+// import { InboxOutlined } from '@ant-design/icons';
 import "antd/dist/antd.css";
 
 const groupStrategyOptions = [
-  {label: 'Domain', value: 1},
-  {label: 'Tab Title', value: 2},
+  { label: 'Domain', value: 1 },
+  { label: 'Tab Title', value: 2 },
 ];
 
 class ConfigPage extends React.Component {
@@ -18,60 +18,60 @@ class ConfigPage extends React.Component {
       tabTitlePattern: "",
       applyLoading: false,
     };
-  };
+  }
 
   componentDidMount() {
     return chrome.storage.local.get(Object.keys(this.state), config => {
       console.log("config", config);
       this.setState(config);
     });
-  };
+  }
 
   onManuallyUpdateClick = () => {
 
   };
 
   onEnableAutoGroupChange = value => {
-    const newState = {enableAutoGroup: value};
+    const newState = { enableAutoGroup: value };
     this.setState(newState);
     chrome.storage.local.set(newState);
   };
 
   onGroupTabNumChange = value => {
-    const newState = {groupTabNum: value};
+    const newState = { groupTabNum: value };
     this.setState(newState);
     chrome.storage.local.set(newState);
   };
 
   onGroupStrategyChange = e => {
-    const newState = {groupStrategy: e.target.value};
+    const newState = { groupStrategy: e.target.value };
     this.setState(newState);
     chrome.storage.local.set(newState);
   };
 
   onTabTitlePatternApply = value => {
     console.log(value);
-    this.setState({applyLoading: true, tabTitlePattern: value});
-    chrome.storage.local.set({tabTitlePattern: value}, () => {
+    this.setState({ applyLoading: true });
+    chrome.storage.local.set({ tabTitlePattern: value }, () => {
       setInterval(() => {
-        this.setState({applyLoading: false});
+        this.setState({ applyLoading: false });
       }, 500);
     });
   }
 
   onTabTitlePatternChange = e => {
-    this.setState({tabTitlePattern: e.target.value});
+    this.setState({ tabTitlePattern: e.target.value });
   }
 
   render() {
     return (
-      <div style={{width: "580px", height: "255px", overflow: "auto"}}>
+      <div style={{ width: "580px", height: "255px", overflow: "auto" }}>
         <Form
           labelCol={{ span: 10 }}
           wrapperCol={{ span: 14 }}
           labelAlign="left"
           layout="horizontal"
-          style={{ padding: "15px"}}
+          style={{ padding: "15px" }}
         >
           {/* <Form.Item style={{textAlign: "center"}}>
             <Button type="primary" shape="round" icon={<InboxOutlined />} onClick={this.onManuallyUpdateClick}>

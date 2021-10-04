@@ -10,14 +10,14 @@ let userConfig = defaultConfig;
 // 读取用户配置
 chrome.storage.local.get(Object.keys(defaultConfig), config => {
   if (config) {
-    userConfig = {...defaultConfig, ...config};
+    userConfig = { ...defaultConfig, ...config };
   }
 });
 
 // 监听用户配置修改
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === "local") {
-    for(const key in changes) {
+    for (const key in changes) {
       userConfig[key] = changes[key].newValue;
     }
   }
@@ -32,16 +32,16 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (tabs.length < userConfig.groupTabNum) {
       return;
     }
-    
+
     const tabIds = tabs.map(t => t.id);
     const groupTitle = getGroupTitle(tab);
     // 查询分组，如果分组存在则加入分组，否则新建分组
-    chrome.tabGroups.query({title: groupTitle}).then(tabGroups => {
+    chrome.tabGroups.query({ title: groupTitle }).then(tabGroups => {
       if (tabGroups && tabGroups.length > 0) {
-        chrome.tabs.group({tabIds, groupId: tabGroups[0].id})
+        chrome.tabs.group({ tabIds, groupId: tabGroups[0].id })
       } else {
-        chrome.tabs.group({tabIds}).then(groupId => {
-          chrome.tabGroups.update(groupId, {title: groupTitle});
+        chrome.tabs.group({ tabIds }).then(groupId => {
+          chrome.tabGroups.update(groupId, { title: groupTitle });
         });
       }
     });
@@ -55,7 +55,7 @@ function shloudFireAction(changeInfo, tab) {
   }
   // 对于根据域名分组需要判断url
   if (userConfig.groupStrategy === 1) {
-    return changeInfo.url && tab.url.match(/^https?:\/\/[^\/]+\/.*/);
+    return changeInfo.url && tab.url.match(/^https?:\/\/[^/]+\/.*/);
   }
   // 对于根据标题分组需要判断标题，Pattern不为空
   if (userConfig.groupStrategy === 2) {
@@ -70,12 +70,12 @@ function shloudFireAction(changeInfo, tab) {
  * @param {*} tab 
  * @returns Promise<tabs>
  */
- function querySameTabs(tab) {
+function querySameTabs(tab) {
   switch (userConfig.groupStrategy) {
-    case 1: 
+    case 1:
       return querySameDomainTabs(tab);
     case 2:
-      return querySameTitlePattern(tab);
+      return querySameTitlePattern();
     default:
       return new Promise(resolve => {
         resolve([]);
@@ -91,7 +91,7 @@ function shloudFireAction(changeInfo, tab) {
  */
 function querySameDomainTabs(tab) {
   const queryInfo = {
-    url : `*://${getDomain(tab.url)}/*`,
+    url: `*://${getDomain(tab.url)}/*`,
   };
   return chrome.tabs.query(queryInfo);
 }
@@ -99,12 +99,11 @@ function querySameDomainTabs(tab) {
 /**
  * 返回和tab匹配相同标题的其他tab
  * 
- * @param {*} tab
  * @returns Promise<tabs>
  */
- function querySameTitlePattern(tab) {
+function querySameTitlePattern() {
   const queryInfo = {
-    title : `*${userConfig.tabTitlePattern}*`,
+    title: `*${userConfig.tabTitlePattern}*`,
   };
   return chrome.tabs.query(queryInfo);
 }
@@ -120,7 +119,7 @@ function getGroupTitle(tab) {
 }
 
 function getDomain(url) {
-  const re = /^https?:\/\/([^\/]+)\/.*/;
+  const re = /^https?:\/\/([^/]+)\/.*/;
   const match = url.match(re);
   return match[1];
 }
