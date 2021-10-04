@@ -49,7 +49,7 @@ class ConfigPage extends React.Component {
     chrome.storage.local.set(newState);
   };
 
-  ontabTitlePatternApply = value => {
+  onTabTitlePatternApply = value => {
     this.setState({applyLoading: true, tabTitlePattern: value});
     chrome.storage.local.set({tabTitlePattern: value}, () => {
       setInterval(() => {
@@ -66,8 +66,14 @@ class ConfigPage extends React.Component {
 
   render() {
     return (
-      <div>
-        <Form layout="vertical" style={{padding: "20px"}}>
+      <div style={{width: "580px", height: "255px", overflow: "auto"}}>
+        <Form
+          labelCol={{ span: 10 }}
+          wrapperCol={{ span: 14 }}
+          labelAlign="left"
+          layout="horizontal"
+          style={{ padding: "15px"}}
+        >
           {/* <Form.Item style={{textAlign: "center"}}>
             <Button type="primary" shape="round" icon={<InboxOutlined />} onClick={this.onManuallyUpdateClick}>
               Group all tabs right now!
@@ -76,7 +82,7 @@ class ConfigPage extends React.Component {
           <Form.Item label="Enable auto group tabs">
             <Switch checked={this.state.enableAutoGroup} onChange={this.onEnableAutoGroupChange} />
           </Form.Item>
-          <Form.Item label="Minimum number of tabs per group">
+          <Form.Item label="Min-number of tabs per group">
             <InputNumber min={2} value={this.state.groupTabNum} onChange={this.onGroupTabNumChange} />
           </Form.Item>
           <Form.Item label="Group strategy">
