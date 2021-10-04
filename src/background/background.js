@@ -3,7 +3,7 @@ const defaultConfig = {
   enableAutoGroup: true, // 是否启动自动分组
   groupTabNum: 2, // 满足多少个tab时才进行分组
   groupStrategy: 1, // 分组策略，1.域名分组 2.tab名称匹配分组
-  tabNamePattern: "", // tab名称匹配的规则
+  tabTitlePattern: "", // tab名称匹配的规则
   showGroupName: true, // 是否创建group时包含group名称
 }
 
@@ -25,15 +25,9 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // 过滤更新url事件，加载新页面时会触发
-  if (!changeInfo.status || !changeInfo.url) {
+  if (!shloudFireAction(changeInfo, tab)) {
     return;
   }
-
-  // 不匹配网页地址不做分组，主要针对 chrome:// 地址
-  if (!/^https?:\/\/[^\/]+\/.*/.test(tab.url)) {
-    return;
-  };
 
   querySameTabs(tab).then(tabs => {
     tabs.push(tab);
@@ -46,6 +40,22 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   });
 });
 
+function shloudFireAction(changeInfo, tab) {
+  // 判断是否开启自动分组
+  if (!userConfig.enableAutoGroup) {
+    return false;
+  }
+  // 对于根据域名分组需要判断url
+  if (userConfig.groupStrategy === 1) {
+    return changeInfo.url && tab.url.match(/^https?:\/\/[^\/]+\/.*/);
+  }
+  // 对于根据标题分组需要判断标题，Pattern不为空
+  if (userConfig.groupStrategy === 2) {
+    return changeInfo.title && userConfig.tabTitlePattern && tab.title.includes(userConfig.tabTitlePattern);
+  }
+  return false;
+}
+
 /**
  * 返回和该tab匹配的其他tab
  * 
@@ -56,6 +66,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   switch (userConfig.groupStrategy) {
     case 1: 
       return querySameDomainTabs(tab);
+    case 2:
+      return querySameTitlePattern(tab);
     default:
       return new Promise(resolve => {
         resolve([]);
@@ -73,6 +85,21 @@ function querySameDomainTabs(tab) {
   // 查询状态为complete的tab，避免更新url时查询到自己而没有重新分组
   const queryInfo = {
     url : `*://${getDomain(tab.url)}/*`,
+    status: "complete",
+  };
+  return chrome.tabs.query(queryInfo);
+}
+
+/**
+ * 返回和tab匹配相同标题的其他tab
+ * 
+ * @param {*} tab
+ * @returns Promise<tabs>
+ */
+ function querySameTitlePattern(tab) {
+  // 查询状态为complete的tab，避免更新url时查询到自己而没有重新分组
+  const queryInfo = {
+    title : `*${userConfig.tabTitlePattern}*`,
     status: "complete",
   };
   return chrome.tabs.query(queryInfo);

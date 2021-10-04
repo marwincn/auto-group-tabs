@@ -5,7 +5,7 @@ import "antd/dist/antd.css";
 
 const groupStrategyOptions = [
   {label: 'Domain', value: 1},
-  {label: 'Tab Name', value: 2},
+  {label: 'Tab Title', value: 2},
 ];
 
 class ConfigPage extends React.Component {
@@ -16,7 +16,7 @@ class ConfigPage extends React.Component {
       groupStrategy: 1,
       groupTabNum: 2,
       showGroupName: true,
-      tabNamePattern: "",
+      tabTitlePattern: "",
       applyLoading: false,
     };
   };
@@ -49,9 +49,9 @@ class ConfigPage extends React.Component {
     chrome.storage.local.set(newState);
   };
 
-  onTabNamePatternApply = value => {
-    this.setState({applyLoading: true, tabNamePattern: value});
-    chrome.storage.local.set({tabNamePattern: value}, () => {
+  ontabTitlePatternApply = value => {
+    this.setState({applyLoading: true, tabTitlePattern: value});
+    chrome.storage.local.set({tabTitlePattern: value}, () => {
       setInterval(() => {
         this.setState({applyLoading: false});
       }, 500);
@@ -68,11 +68,11 @@ class ConfigPage extends React.Component {
     return (
       <div>
         <Form layout="vertical" style={{padding: "20px"}}>
-          <Form.Item style={{textAlign: "center"}}>
+          {/* <Form.Item style={{textAlign: "center"}}>
             <Button type="primary" shape="round" icon={<InboxOutlined />} onClick={this.onManuallyUpdateClick}>
               Group all tabs right now!
             </Button>
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item label="Enable auto group tabs">
             <Switch checked={this.state.enableAutoGroup} onChange={this.onEnableAutoGroupChange} />
           </Form.Item>
@@ -92,14 +92,14 @@ class ConfigPage extends React.Component {
                 <Switch checked={this.state.showGroupName} onChange={this.onShowGroupNameChange} />
               </Form.Item>
             ) : (
-              <Form.Item label="Tab name pattern">
+              <Form.Item label="Tab title contains">
                 <Input.Search
                   style={{ width: '250px' }}
-                  placeholder="input a regex pattern"
                   enterButton="Apply"
-                  defaultValue={this.state.tabNamePattern}
+                  placeholder="Empty matches nothing"
+                  defaultValue={this.state.tabTitlePattern}
                   loading={this.state.applyLoading}
-                  onSearch={this.onTabNamePatternApply}
+                  onSearch={this.ontabTitlePatternApply}
                 />
               </Form.Item>
             )
