@@ -1,5 +1,4 @@
 import React from "react";
-import { getAllConfig, setConfig } from "../chrome/config";
 import { Form, Switch, Radio, InputNumber, Button, Input } from "antd";
 import { InboxOutlined } from '@ant-design/icons';
 import "antd/dist/antd.css";
@@ -9,7 +8,7 @@ const groupStrategyOptions = [
   {label: 'Tab Name', value: 2},
 ];
 
-class App extends React.Component {
+class ConfigPage extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -23,9 +22,9 @@ class App extends React.Component {
   };
 
   componentDidMount() {
-    // getAllConfig().then(config => {
-    //   this.setState(config);
-    // });
+    return chrome.storage.local.get(Object.keys(this.state), config => {
+      this.setState(config);
+    });
   };
 
   onManuallyUpdateClick = () => {
@@ -35,41 +34,41 @@ class App extends React.Component {
   onEnableAutoGroupChange = value => {
     const newState = {enableAutoGroup: value};
     this.setState(newState);
-    // setConfig(newState);
+    chrome.storage.local.set(newState);
   };
 
   onGroupTabNumChange = value => {
     const newState = {groupTabNum: value};
     this.setState(newState);
-    // setConfig(newState);
+    chrome.storage.local.set(newState);
   };
 
   onGroupStrategyChange = e => {
     const newState = {groupStrategy: e.target.value};
     this.setState(newState);
-    // setConfig(newState);
+    chrome.storage.local.set(newState);
   };
 
   onTabNamePatternApply = value => {
-    this.setState({applyLoading: true});
-    // setConfig({tabNamePattern: value}).then(() => {
-    //   setInterval(() => {
-    //     this.setState({applyLoading: false});
-    //   }, 500);
-    // });
+    this.setState({applyLoading: true, tabNamePattern: value});
+    chrome.storage.local.set({tabNamePattern: value}, () => {
+      setInterval(() => {
+        this.setState({applyLoading: false});
+      }, 500);
+    });
   }
 
   onShowGroupNameChange = value => {
     const newState = {showGroupName: value};
     this.setState(newState);
-    // setConfig(newState);
+    chrome.storage.local.set(newState);
   }
 
   render() {
     return (
       <div>
         <Form layout="vertical" style={{padding: "20px"}}>
-          <Form.Item style={{width: "250px", textAlign: "center"}}>
+          <Form.Item style={{textAlign: "center"}}>
             <Button type="primary" shape="round" icon={<InboxOutlined />} onClick={this.onManuallyUpdateClick}>
               Update all tabs right now!
             </Button>
@@ -78,7 +77,7 @@ class App extends React.Component {
             <Switch checked={this.state.enableAutoGroup} onChange={this.onEnableAutoGroupChange} />
           </Form.Item>
           <Form.Item label="Minimum number of tabs per group">
-            <InputNumber min={2} defaultValue={this.state.groupTabNum} onChange={this.onGroupTabNumChange} />
+            <InputNumber min={2} value={this.state.groupTabNum} onChange={this.onGroupTabNumChange} />
           </Form.Item>
           <Form.Item label="Group strategy">
             <Radio.Group
@@ -98,6 +97,7 @@ class App extends React.Component {
                   style={{ width: '250px' }}
                   placeholder="input a regex pattern"
                   enterButton="Apply"
+                  defaultValue={this.state.tabNamePattern}
                   loading={this.state.applyLoading}
                   onSearch={this.onTabNamePatternApply}
                 />
@@ -110,4 +110,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default ConfigPage;

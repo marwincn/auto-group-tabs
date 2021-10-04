@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './popup/App';
+import ConfigPage from './popup/ConfigPage';
 
 console.log("render");
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ConfigPage />
   </React.StrictMode>,
   document.getElementById('root')
 );
