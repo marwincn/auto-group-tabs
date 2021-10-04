@@ -4,7 +4,6 @@ const defaultConfig = {
   groupTabNum: 2, // 满足多少个tab时才进行分组
   groupStrategy: 1, // 分组策略，1.域名分组 2.tab名称匹配分组
   tabTitlePattern: "", // tab名称匹配的规则
-  showGroupName: true, // 是否创建group时包含group名称
 }
 
 let userConfig = defaultConfig;
@@ -30,13 +29,22 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 
   querySameTabs(tab).then(tabs => {
-    tabs.push(tab);
-    // 不满足分组数量，不进行分组
     if (tabs.length < userConfig.groupTabNum) {
       return;
     }
-    // 对所有满足规则的进行分组
-    groupTabs(tabs);
+    
+    const tabIds = tabs.map(t => t.id);
+    const groupTitle = getGroupTitle(tab);
+    // 查询分组，如果分组存在则加入分组，否则新建分组
+    chrome.tabGroups.query({title: groupTitle}).then(tabGroups => {
+      if (tabGroups && tabGroups.length > 0) {
+        chrome.tabs.group({tabIds, groupId: tabGroups[0].id})
+      } else {
+        chrome.tabs.group({tabIds}).then(groupId => {
+          chrome.tabGroups.update(groupId, {title: groupTitle});
+        });
+      }
+    });
   });
 });
 
@@ -82,10 +90,8 @@ function shloudFireAction(changeInfo, tab) {
  * @returns Promise<tabs>
  */
 function querySameDomainTabs(tab) {
-  // 查询状态为complete的tab，避免更新url时查询到自己而没有重新分组
   const queryInfo = {
     url : `*://${getDomain(tab.url)}/*`,
-    status: "complete",
   };
   return chrome.tabs.query(queryInfo);
 }
@@ -97,33 +103,20 @@ function querySameDomainTabs(tab) {
  * @returns Promise<tabs>
  */
  function querySameTitlePattern(tab) {
-  // 查询状态为complete的tab，避免更新url时查询到自己而没有重新分组
   const queryInfo = {
     title : `*${userConfig.tabTitlePattern}*`,
-    status: "complete",
   };
   return chrome.tabs.query(queryInfo);
 }
 
-/**
- * 将tabs分到一个组
- * 
- * @param {*} tabs 
- */
-function groupTabs(tabs) {
-  const tabIds = tabs.map(tab => tab.id);
-  // 找到第一个已有分组的tab，将所有tab分到该组
-  const firstTab = tabs.find(tab => tab.groupId !== -1);
-  if (firstTab) {
-    chrome.tabs.group({tabIds, groupId: firstTab.groupId});
-  } else {
-    chrome.tabs.group({tabIds}).then(groupId => {
-      if (userConfig.showGroupName) {
-        const title = getDomain(tabs[0].url);
-        chrome.tabGroups.update(groupId, {title});
-      }
-    });
+function getGroupTitle(tab) {
+  if (userConfig.groupStrategy === 1) {
+    return getDomain(tab.url);
   }
+  if (userConfig.groupStrategy === 2) {
+    return userConfig.tabTitlePattern;
+  }
+  return '';
 }
 
 function getDomain(url) {

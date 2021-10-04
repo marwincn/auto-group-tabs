@@ -15,7 +15,6 @@ class ConfigPage extends React.Component {
       enableAutoGroup: true,
       groupStrategy: 1,
       groupTabNum: 2,
-      showGroupName: true,
       tabTitlePattern: "",
       applyLoading: false,
     };
@@ -23,6 +22,7 @@ class ConfigPage extends React.Component {
 
   componentDidMount() {
     return chrome.storage.local.get(Object.keys(this.state), config => {
+      console.log("config", config);
       this.setState(config);
     });
   };
@@ -50,6 +50,7 @@ class ConfigPage extends React.Component {
   };
 
   onTabTitlePatternApply = value => {
+    console.log(value);
     this.setState({applyLoading: true, tabTitlePattern: value});
     chrome.storage.local.set({tabTitlePattern: value}, () => {
       setInterval(() => {
@@ -58,10 +59,8 @@ class ConfigPage extends React.Component {
     });
   }
 
-  onShowGroupNameChange = value => {
-    const newState = {showGroupName: value};
-    this.setState(newState);
-    chrome.storage.local.set(newState);
+  onTabTitlePatternChange = e => {
+    this.setState({tabTitlePattern: e.target.value});
   }
 
   render() {
@@ -93,23 +92,18 @@ class ConfigPage extends React.Component {
               optionType="button"
             />
           </Form.Item>
-          { this.state.groupStrategy === 1 ? (
-              <Form.Item label="Show group name">
-                <Switch checked={this.state.showGroupName} onChange={this.onShowGroupNameChange} />
-              </Form.Item>
-            ) : (
-              <Form.Item label="Tab title contains">
-                <Input.Search
-                  style={{ width: '250px' }}
-                  enterButton="Apply"
-                  placeholder="Empty matches nothing"
-                  defaultValue={this.state.tabTitlePattern}
-                  loading={this.state.applyLoading}
-                  onSearch={this.ontabTitlePatternApply}
-                />
-              </Form.Item>
-            )
-          }
+          <Form.Item label="Tab title contains">
+            <Input.Search
+              style={{ width: '250px' }}
+              enterButton="Apply"
+              placeholder="Empty matches nothing"
+              value={this.state.tabTitlePattern}
+              onChange={this.onTabTitlePatternChange}
+              loading={this.state.applyLoading}
+              disabled={this.state.groupStrategy !== 2}
+              onSearch={this.onTabTitlePatternApply}
+            />
+          </Form.Item>
         </Form>
       </div>
     );
