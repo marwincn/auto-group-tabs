@@ -14,7 +14,7 @@ class ConfigPage extends React.Component {
     this.state = {
       enableAutoGroup: true,
       groupStrategy: 1,
-      groupTabNum: 2,
+      groupTabNum: 1,
       tabTitlePattern: "",
       applyLoading: false,
     };
@@ -82,7 +82,7 @@ class ConfigPage extends React.Component {
             <Switch checked={this.state.enableAutoGroup} onChange={this.onEnableAutoGroupChange} />
           </Form.Item>
           <Form.Item label="Min-number of tabs per group">
-            <InputNumber min={2} value={this.state.groupTabNum} onChange={this.onGroupTabNumChange} />
+            <InputNumber min={1} value={this.state.groupTabNum} onChange={this.onGroupTabNumChange} />
           </Form.Item>
           <Form.Item label="Group strategy">
             <Radio.Group

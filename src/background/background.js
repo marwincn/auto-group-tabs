@@ -1,7 +1,7 @@
 // 默认配置
 const defaultConfig = {
   enableAutoGroup: true, // 是否启动自动分组
-  groupTabNum: 2, // 满足多少个tab时才进行分组
+  groupTabNum: 1, // 满足多少个tab时才进行分组
   groupStrategy: 1, // 分组策略，1.域名分组 2.tab名称匹配分组
   tabTitlePattern: "", // tab名称匹配的规则
 }
