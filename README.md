@@ -1,70 +1,32 @@
-# Getting Started with Create React App
+# Auto Group Tabs
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Chrome浏览器在85版本发布了标签页分组功能，但是需要手动对标签页的分组进行管理。`Auto Group Tabs`是一款浏览器扩展，实现*新打开标签页*或*标签页地址切换*时自动进行分组，用户可以自定义分组的规则，如按照域名分组或按照标签页标题关键词分组。
 
-## Available Scripts
+可以在Chrome网上应用商店安装此扩展：[link](https://chrome.google.com/webstore/detail/auto-group-tabs/mnolhkkapjcaekdgopmfolekecfhgoob)
 
-In the project directory, you can run:
+![M7dYZU8Ca6HJpwr](https://i.loli.net/2021/10/06/M7dYZU8Ca6HJpwr.jpg)
 
-### `npm start`
+# 自行构建程序
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+环境要求：
+* Mac OS 或 Linux 操作系统
+* 安装npm
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+> 目前build脚本不支持在Windows环境上运行，如果你有想法欢迎提PR
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+下载依赖：
+```shell
+npm install
+```
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+构建：
+```shell
+npm run build
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+构建完成后根目录下会出现`build/`目录，在浏览器扩展页面打开`开发者模式`后，点击`加载已解压的扩展程序`，选择刚才生成的build目录即可。
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+![oRZdQ8buGXJDylp](https://i.loli.net/2021/10/06/oRZdQ8buGXJDylp.png)
