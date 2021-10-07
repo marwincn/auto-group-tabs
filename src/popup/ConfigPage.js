@@ -21,9 +21,9 @@ class ConfigPage extends React.Component {
   }
 
   componentDidMount() {
-    // return chrome.storage.local.get(Object.keys(this.state), config => {
-    //   this.setState(config);
-    // });
+    return chrome.storage.local.get(Object.keys(this.state), config => {
+      this.setState(config);
+    });
   }
 
   onManuallyUpdateClick = () => {
