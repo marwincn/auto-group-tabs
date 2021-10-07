@@ -4,7 +4,9 @@ Chrome浏览器在85版本发布了标签页分组功能，但是需要手动对
 
 可以在Chrome网上应用商店安装此扩展：[link](https://chrome.google.com/webstore/detail/auto-group-tabs/mnolhkkapjcaekdgopmfolekecfhgoob)
 
-![M7dYZU8Ca6HJpwr](https://i.loli.net/2021/10/06/M7dYZU8Ca6HJpwr.jpg)
+![演示](https://i.loli.net/2021/10/06/LQKtSh7m1kjs9vM.gif)
+
+![aBPdYpAo1sEIwN6](https://i.loli.net/2021/10/07/aBPdYpAo1sEIwN6.jpg)
 
 # 自行构建程序
 
