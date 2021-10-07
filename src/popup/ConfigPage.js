@@ -40,10 +40,12 @@ class ConfigPage extends React.Component {
       });
 
       for (const groupTitle in tabGroups) {
-        const tabIds = tabGroups[groupTitle].map(tab => tab.id);
-        chrome.tabs.group({ tabIds }).then(groupId => {
-          chrome.tabGroups.update(groupId, { title: groupTitle });
+        if (tabGroups[groupTitle].length >= this.state.groupTabNum) {
+          const tabIds = tabGroups[groupTitle].map(tab => tab.id);
+          chrome.tabs.group({ tabIds }).then(groupId => {
+            chrome.tabGroups.update(groupId, { title: groupTitle });
         });
+        }
       }
     });
   };
