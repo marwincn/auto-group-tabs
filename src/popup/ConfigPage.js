@@ -1,7 +1,7 @@
 import React from "react";
-import { Form, Switch, Radio, InputNumber, Input } from "antd";
-// import { InboxOutlined } from '@ant-design/icons';
+import { Form, Switch, Radio, InputNumber, Input, Button, Divider } from "antd";
 import "antd/dist/antd.css";
+import "./ConfigPags.css";
 
 const groupStrategyOptions = [
   { label: 'Domain', value: 1 },
@@ -21,15 +21,51 @@ class ConfigPage extends React.Component {
   }
 
   componentDidMount() {
-    return chrome.storage.local.get(Object.keys(this.state), config => {
-      console.log("config", config);
-      this.setState(config);
-    });
+    // return chrome.storage.local.get(Object.keys(this.state), config => {
+    //   this.setState(config);
+    // });
   }
 
   onManuallyUpdateClick = () => {
+    chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT }).then(tabs => {
+      let tabGroups = {};
+      tabs.forEach(tab => {
+        const groupTitle = this.getGroupName(tab);
+        if (groupTitle) {
+          if (!tabGroups[groupTitle]) {
+            tabGroups[groupTitle] = [];
+          }
+          tabGroups[groupTitle].push(tab);
+        }
+      });
 
+      for (const groupTitle in tabGroups) {
+        const tabIds = tabGroups[groupTitle].map(tab => tab.id);
+        chrome.tabs.group({ tabIds }).then(groupId => {
+          chrome.tabGroups.update(groupId, { title: groupTitle });
+        });
+      }
+    });
   };
+
+  getGroupName = tab => {
+    switch (this.state.groupStrategy) {
+      case 1: {
+        const re = /^https?:\/\/([^/]+)\/.*/;
+        const match = tab.url.match(re);
+        if (!match) {
+          return "";
+        }
+        return match[1];
+      }
+      case 2: {
+        return this.state.tabTitlePattern;
+      }
+      default: {
+        return "";
+      }
+    }
+  }
 
   onEnableAutoGroupChange = value => {
     const newState = { enableAutoGroup: value };
@@ -65,19 +101,20 @@ class ConfigPage extends React.Component {
 
   render() {
     return (
-      <div style={{ width: "300px", height: "400px", overflow: "auto" }}>
+      <div style={{ width: "300px", height: "420px", overflow: "auto" }}>
         <Form
           // labelCol={{ span: 10 }}
           // wrapperCol={{ span: 14 }}
           labelAlign="left"
           layout="vertical"
-          style={{ padding: "15px" }}
+          style={{ padding: "16px" }}
         >
-          {/* <Form.Item style={{textAlign: "center"}}>
-            <Button type="primary" shape="round" icon={<InboxOutlined />} onClick={this.onManuallyUpdateClick}>
-              Group all tabs right now!
+          <Form.Item style={{textAlign: "center"}}>
+            <Button type="primary" shape="round"  onClick={this.onManuallyUpdateClick}>
+              👏  Group all tabs right now!
             </Button>
-          </Form.Item> */}
+          </Form.Item>
+          <Divider />
           <Form.Item label="Enable auto group tabs">
             <Switch checked={this.state.enableAutoGroup} onChange={this.onEnableAutoGroupChange} />
           </Form.Item>
