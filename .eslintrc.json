@@ -17,8 +17,8 @@
     "plugins": [
         "react"
     ],
-    "parser": "babel-eslint",
-    "rules": {
-        "no-undef": "off"
-    }
+    "globals": {
+        "chrome": true
+    },
+    "parser": "babel-eslint"
 }
