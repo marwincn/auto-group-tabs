@@ -30,12 +30,13 @@ const domainStrategy = {
   getGroupTitle: tab => {
     return getDomain(tab.url);
   },
-  querySameTabs: tab => {
-    const queryInfo = {
-      url: `*://${getDomain(tab.url)}/*`,
-      windowId: chrome.windows.WINDOW_ID_CURRENT,
-    };
-    return chrome.tabs.query(queryInfo);
+  querySameTabs: async tab => {
+    const domain = getDomain(tab.url);
+    let tabs;
+    await chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT }).then(allTabs => {
+      tabs = allTabs.filter(t => t.url && domain === getDomain(t.url));
+    });
+    return tabs;
   },
 }
 // 根据Tab标题分组的策略
@@ -94,5 +95,5 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 function getDomain(url) {
   const re = /^https?:\/\/([^/]+)\/.*/;
   const match = url.match(re);
-  return match[1];
+  return match ? match[1] : null;
 }
