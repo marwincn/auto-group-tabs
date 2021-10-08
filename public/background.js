@@ -8,7 +8,7 @@ const DEFAULT_GROUP = {
 
 let userConfig = DEFAULT_GROUP;
 // 读取用户配置
-chrome.storage.local.get(Object.keys(DEFAULT_GROUP), config => {
+chrome.storage.sync.get(Object.keys(DEFAULT_GROUP), config => {
   if (config) {
     userConfig = { ...DEFAULT_GROUP, ...config };
   }

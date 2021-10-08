@@ -1,6 +1,6 @@
-import React from "react";
-import { Form, Switch, Radio, InputNumber, Input, Button, Divider } from "antd";
+import { Button, Divider, Form, Input, InputNumber, Radio, Switch } from "antd";
 import "antd/dist/antd.css";
+import React from "react";
 import "./ConfigPags.css";
 
 const groupStrategyOptions = [
@@ -21,7 +21,7 @@ class ConfigPage extends React.Component {
   }
 
   componentDidMount() {
-    return chrome.storage.local.get(Object.keys(this.state), config => {
+    return chrome.storage.sync.get(Object.keys(this.state), config => {
       this.setState(config);
     });
   }
@@ -72,25 +72,25 @@ class ConfigPage extends React.Component {
   onEnableAutoGroupChange = value => {
     const newState = { enableAutoGroup: value };
     this.setState(newState);
-    chrome.storage.local.set(newState);
+    chrome.storage.sync.set(newState);
   };
 
   onGroupTabNumChange = value => {
     const newState = { groupTabNum: value };
     this.setState(newState);
-    chrome.storage.local.set(newState);
+    chrome.storage.sync.set(newState);
   };
 
   onGroupStrategyChange = e => {
     const newState = { groupStrategy: e.target.value };
     this.setState(newState);
-    chrome.storage.local.set(newState);
+    chrome.storage.sync.set(newState);
   };
 
   onTabTitlePatternApply = value => {
     console.log(value);
     this.setState({ applyLoading: true });
-    chrome.storage.local.set({ tabTitlePattern: value }, () => {
+    chrome.storage.sync.set({ tabTitlePattern: value }, () => {
       setInterval(() => {
         this.setState({ applyLoading: false });
       }, 500);
