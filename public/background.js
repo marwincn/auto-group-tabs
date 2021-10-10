@@ -94,13 +94,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
   if (strategy.shloudGroup(changeInfo, tab)) {
     strategy.querySameTabs(tab).then((tabs) => {
+      const tabIds = tabs.map((t) => t.id);
+      // 如果tab数量不满足设置最小数量进行ungroup
       if (tabs.length < userConfig.groupTabNum) {
+        chrome.tabs.ungroup(tabIds);
         return;
       }
 
-      const tabIds = tabs.map((t) => t.id);
-      const groupTitle = strategy.getGroupTitle(tab);
       // 查询分组，如果分组存在则加入分组，否则新建分组
+      const groupTitle = strategy.getGroupTitle(tab);
       chrome.tabGroups
         .query({
           title: groupTitle,
@@ -138,11 +140,13 @@ chrome.runtime.onMessage.addListener((request) => {
         });
         // 调用chrome API 进行tabs分组
         for (const groupTitle in tabGroups) {
+          const tabIds = tabGroups[groupTitle].map((tab) => tab.id);
           if (tabGroups[groupTitle].length >= userConfig.groupTabNum) {
-            const tabIds = tabGroups[groupTitle].map((tab) => tab.id);
             chrome.tabs.group({ tabIds }).then((groupId) => {
               chrome.tabGroups.update(groupId, { title: groupTitle });
             });
+          } else {
+            chrome.tabs.ungroup(tabIds);
           }
         }
       });
