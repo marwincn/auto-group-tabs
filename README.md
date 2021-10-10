@@ -6,7 +6,7 @@ Chrome浏览器在85版本发布了标签页分组功能，但是需要手动对
 
 ![演示](https://i.loli.net/2021/10/06/LQKtSh7m1kjs9vM.gif)
 
-![aBPdYpAo1sEIwN6](https://i.loli.net/2021/10/07/aBPdYpAo1sEIwN6.jpg)
+![WDOHGb3dsvPEC68](https://i.loli.net/2021/10/10/WDOHGb3dsvPEC68.jpg)
 
 # 自行构建程序
 
