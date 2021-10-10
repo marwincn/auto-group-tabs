@@ -27,47 +27,8 @@ class ConfigPage extends React.Component {
   }
 
   onManuallyUpdateClick = () => {
-    chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT }).then(tabs => {
-      let tabGroups = {};
-      tabs.forEach(tab => {
-        const groupTitle = this.getGroupName(tab);
-        if (groupTitle) {
-          if (!tabGroups[groupTitle]) {
-            tabGroups[groupTitle] = [];
-          }
-          tabGroups[groupTitle].push(tab);
-        }
-      });
-
-      for (const groupTitle in tabGroups) {
-        if (tabGroups[groupTitle].length >= this.state.groupTabNum) {
-          const tabIds = tabGroups[groupTitle].map(tab => tab.id);
-          chrome.tabs.group({ tabIds }).then(groupId => {
-            chrome.tabGroups.update(groupId, { title: groupTitle });
-        });
-        }
-      }
-    });
+    chrome.runtime.sendMessage({groupRightNow: true});
   };
-
-  getGroupName = tab => {
-    switch (this.state.groupStrategy) {
-      case 1: {
-        const re = /^https?:\/\/([^/]+)\/.*/;
-        const match = tab.url.match(re);
-        if (!match) {
-          return "";
-        }
-        return match[1];
-      }
-      case 2: {
-        return this.state.tabTitlePattern;
-      }
-      default: {
-        return "";
-      }
-    }
-  }
 
   onEnableAutoGroupChange = value => {
     const newState = { enableAutoGroup: value };

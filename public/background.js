@@ -92,6 +92,34 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
+chrome.runtime.onMessage.addListener(request => {
+  if (request.groupRightNow) {
+    chrome.tabs.query({windowId: chrome.windows.WINDOW_ID_CURRENT }).then(tabs => {
+      const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
+      // 按groupTitle分组，key为groupTitle，value为tabs
+      let tabGroups = {};
+      tabs.forEach(tab => {
+        const groupTitle = strategy.getGroupTitle(tab);
+        if (groupTitle) {
+          if (!tabGroups[groupTitle]) {
+            tabGroups[groupTitle] = [];
+          }
+          tabGroups[groupTitle].push(tab);
+        }
+      });
+      // 调用chrome API 进行tabs分组
+      for (const groupTitle in tabGroups) {
+        if (tabGroups[groupTitle].length >= userConfig.groupTabNum) {
+          const tabIds = tabGroups[groupTitle].map(tab => tab.id);
+          chrome.tabs.group({ tabIds }).then(groupId => {
+            chrome.tabGroups.update(groupId, { title: groupTitle });
+        });
+        }
+      }
+    });
+  }
+});
+
 function getDomain(url) {
   const re = /^https?:\/\/([^/]+)\/.*/;
   const match = url.match(re);
