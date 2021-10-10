@@ -92,31 +92,19 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 
   const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
+  // 如果满足group的条件，进行group
   if (strategy.shloudGroup(changeInfo, tab)) {
+    groupTabs(strategy, tab);
+  }
+
+  // 如果有tab从分组中移除，需要判断group的数量是否还满足数量，如果不满足ungroup
+  if (changeInfo.groupId && changeInfo.groupId === -1) {
     strategy.querySameTabs(tab).then((tabs) => {
       const tabIds = tabs.map((t) => t.id);
       // 如果tab数量不满足设置最小数量进行ungroup
       if (tabs.length < userConfig.groupTabNum) {
         chrome.tabs.ungroup(tabIds);
-        return;
       }
-
-      // 查询分组，如果分组存在则加入分组，否则新建分组
-      const groupTitle = strategy.getGroupTitle(tab);
-      chrome.tabGroups
-        .query({
-          title: groupTitle,
-          windowId: chrome.windows.WINDOW_ID_CURRENT,
-        })
-        .then((tabGroups) => {
-          if (tabGroups && tabGroups.length > 0) {
-            chrome.tabs.group({ tabIds, groupId: tabGroups[0].id });
-          } else {
-            chrome.tabs.group({ tabIds }).then((groupId) => {
-              chrome.tabGroups.update(groupId, { title: groupTitle });
-            });
-          }
-        });
     });
   }
 });
@@ -152,6 +140,33 @@ chrome.runtime.onMessage.addListener((request) => {
       });
   }
 });
+
+function groupTabs(strategy, tab) {
+  strategy.querySameTabs(tab).then((tabs) => {
+    const tabIds = tabs.map((t) => t.id);
+    // 如果tab数量不满足设置最小数量进行ungroup
+    if (tabs.length < userConfig.groupTabNum) {
+      chrome.tabs.ungroup(tabIds);
+      return;
+    }
+    // 查询分组，如果分组存在则加入分组，否则新建分组
+    const groupTitle = strategy.getGroupTitle(tab);
+    chrome.tabGroups
+      .query({
+        title: groupTitle,
+        windowId: chrome.windows.WINDOW_ID_CURRENT,
+      })
+      .then((tabGroups) => {
+        if (tabGroups && tabGroups.length > 0) {
+          chrome.tabs.group({ tabIds, groupId: tabGroups[0].id });
+        } else {
+          chrome.tabs.group({ tabIds }).then((groupId) => {
+            chrome.tabGroups.update(groupId, { title: groupTitle });
+          });
+        }
+      });
+  });
+}
 
 function getDomain(url) {
   const re = /^https?:\/\/([^/]+)\/.*/;
