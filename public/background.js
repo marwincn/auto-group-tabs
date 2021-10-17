@@ -33,7 +33,10 @@ const domainStrategy = {
     const domain = getDomain(tab.url);
     let tabs;
     await chrome.tabs
-      .query({ windowId: chrome.windows.WINDOW_ID_CURRENT })
+      .query({
+        windowId: chrome.windows.WINDOW_ID_CURRENT,
+        pinned: false,
+      })
       .then((allTabs) => {
         tabs = allTabs.filter((t) => t.url && domain === getDomain(t.url));
       });
@@ -52,7 +55,10 @@ const secDomainStrategy = {
     const domain = getSecDomain(tab.url);
     let tabs;
     await chrome.tabs
-      .query({ windowId: chrome.windows.WINDOW_ID_CURRENT })
+      .query({
+        windowId: chrome.windows.WINDOW_ID_CURRENT,
+        pinned: false,
+      })
       .then((allTabs) => {
         tabs = allTabs.filter((t) => t.url && domain === getSecDomain(t.url));
       });
@@ -75,6 +81,7 @@ const tabTitleStrategy = {
     const queryInfo = {
       title: `*${userConfig.tabTitlePattern}*`,
       windowId: chrome.windows.WINDOW_ID_CURRENT,
+      pinned: false,
     };
     return chrome.tabs.query(queryInfo);
   },
@@ -102,7 +109,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     strategy.querySameTabs(tab).then((tabs) => {
       const tabIds = tabs.map((t) => t.id);
       // 如果tab数量不满足设置最小数量进行ungroup
-      if (tabs.length < userConfig.groupTabNum) {
+      if (tabs.length > 0 && tabs.length < userConfig.groupTabNum) {
         chrome.tabs.ungroup(tabIds);
       }
     });
@@ -169,7 +176,7 @@ function groupTabs(strategy, tab) {
 }
 
 function getDomain(url) {
-  const re = /^https?:\/\/([^/]+)\/.*/;
+  const re = /^https?:\/\/([^/:]+)(:\d+)?\/.*/;
   const match = url.match(re);
   return match ? match[1] : null;
 }
@@ -178,9 +185,9 @@ function getSecDomain(url) {
   const domain = getDomain(url);
   if (!domain) return null;
 
-  // 带端口号形式或者localhost地址
-  if (domain.includes(":") || domain.includes("localhost")) {
-    return domain.split(":")[0];
+  // localhost地址
+  if (domain === "localhost") {
+    return domain;
   }
   // 匹配二级域名
   const match = domain.match(
