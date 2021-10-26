@@ -185,8 +185,8 @@ function getDomain(url) {
 function getSecDomain(url) {
   const domain = getDomain(url);
   if (!domain) return null;
-  // localhost地址
-  if (domain === "localhost") {
+  // localhost地址或IP
+  if (domain === "localhost" || domain.match(/^\d+\.\d+\.\d+\.\d+$/)) {
     return domain;
   }
   // 匹配二级域名
