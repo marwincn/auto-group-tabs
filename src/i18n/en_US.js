@@ -1,0 +1,14 @@
+export default {
+  group_all_tabs: "Group all tabs right now!",
+  enable_auto_group: "Enable auto group tabs:",
+  min_number: "Min-number of tabs per group:",
+  group_strategy: "Group strategy:",
+  domain: "Domain",
+  domain_tip: "Full domain name. Match 'www.google.com' in https://www.google.com/",
+  sld: "SLD",
+  sld_tip: "Second Level Domain. Match 'google' in https://www.google.com/",
+  tab_title: "Tab Title",
+  tab_title_contains: "Tab title contains:",
+  apply: "Apply",
+  input_placeholder: "Empty matches nothing",
+};
