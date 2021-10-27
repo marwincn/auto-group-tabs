@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import ConfigPage from "./popup/ConfigPage";
 import { IntlProvider } from "react-intl";
-import zh_CN from "./i18n/zh_CN";
 import en_US from "./i18n/en_US";
+import zh_CN from "./i18n/zh_CN";
+import ConfigPage from "./popup/ConfigPage";
 
 const locale = chrome.i18n.getUILanguage();
 const messages = {
