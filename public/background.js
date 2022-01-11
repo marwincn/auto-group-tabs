@@ -1,6 +1,7 @@
 // 默认配置
 const DEFAULT_CONFIG = {
   enableAutoGroup: true, // 是否启动自动分组
+  enableMerge: true,
   groupTabNum: 1, // 满足多少个tab时才进行分组
   groupStrategy: 1, // 分组策略
   tabTitlePattern: "", // tab名称匹配的规则
@@ -116,8 +117,33 @@ chrome.runtime.onMessage.addListener((request) => {
     });
   }
 });
+function mergeTabs() {
+  chrome.tabs
+    .query({ windowId: chrome.windows.WINDOW_ID_CURRENT })
+    .then((tabs) => {
+      let tabGroups = {};
+      tabs.forEach((tab) => {
+        let key = tab.url;
+        if (key) {
+          key = key.split("#")[0];
+          if (!tabGroups[key]) {
+            tabGroups[key] = [tab];
+          } else {
+            chrome.tabs.remove(tab.id);
+          }
+        }
+      });
+    });
+}
 
 function groupAllTabs() {
+  chrome.storage.sync.get(Object.keys(DEFAULT_CONFIG), (config) => {
+    userConfig = { ...DEFAULT_CONFIG, ...config };
+    if (userConfig.enableMerge) {
+      mergeTabs();
+    }
+  });
+
   chrome.tabs
     .query({ windowId: chrome.windows.WINDOW_ID_CURRENT })
     .then((tabs) => {
