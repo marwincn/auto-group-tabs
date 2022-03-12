@@ -24,7 +24,7 @@ class ConfigPage extends React.Component {
     this.i18n = (key) => props.intl.formatMessage({ id: key });
     this.state = {
       enableAutoGroup: true,
-      groupStrategy: 1,
+      groupStrategy: 2,
       groupTabNum: 1,
       tabTitlePattern: "",
       applyLoading: false,
