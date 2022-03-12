@@ -25,7 +25,7 @@ class ConfigPage extends React.Component {
     this.state = {
       enableAutoGroup: true,
       enableMerge: true,
-      groupStrategy: 1,
+      groupStrategy: 2,
       groupTabNum: 1,
       tabTitlePattern: "",
       applyLoading: false,
@@ -89,7 +89,7 @@ class ConfigPage extends React.Component {
     ];
 
     return (
-      <div style={{ width: "280px", height: "400px", overflow: "auto" }}>
+      <div style={{ width: "280px", height: "455px", overflow: "auto" }}>
         <Form labelAlign="left" layout="vertical" style={{ padding: "16px" }}>
           <Form.Item style={{ textAlign: "center" }}>
             <Button
