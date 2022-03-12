@@ -1,5 +1,5 @@
 export default {
-  group_all_tabs: "一键分组所有Tabs",
+  group_all_tabs: "一键分组所有Tab",
   enable_auto_group: "是否开启自动分组：",
   min_number: "每个分组最小Tab数量：",
   group_strategy: "分组策略：",
@@ -12,5 +12,5 @@ export default {
   apply: "应用",
   input_placeholder: "不填则不匹配",
   enable_merge: "是否合并相同 Tab",
-  merge_tip: "在分组时，合并相同路径的 tab 页面",
+  merge_tip: "在分组时，合并相同路径的 Tab 页面",
 };
