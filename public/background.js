@@ -2,7 +2,7 @@
 const DEFAULT_CONFIG = {
   enableAutoGroup: true, // 是否启动自动分组
   groupTabNum: 1, // 满足多少个tab时才进行分组
-  groupStrategy: 1, // 分组策略
+  groupStrategy: 2, // 分组策略
   tabTitlePattern: "", // tab名称匹配的规则
 };
 // 全局的用户配置
