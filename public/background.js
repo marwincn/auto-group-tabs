@@ -12,7 +12,7 @@ let userConfig = DEFAULT_CONFIG;
 
 // 根据域名分组的策略
 const domainStrategy = {
-  shloudGroup: (changeInfo, tab) => {
+  shouldGroup: (changeInfo, tab) => {
     return changeInfo.url && tab.url.match(/^https?:\/\/[^/]+\/.*/);
   },
   getGroupTitle: (tab) => {
@@ -21,7 +21,7 @@ const domainStrategy = {
 };
 // 根据二级域名分组的策略
 const secDomainStrategy = {
-  shloudGroup: (changeInfo, tab) => {
+  shouldGroup: (changeInfo, tab) => {
     return changeInfo.url && tab.url.match(/^https?:\/\/[^/]+\/.*/);
   },
   getGroupTitle: (tab) => {
@@ -30,7 +30,7 @@ const secDomainStrategy = {
 };
 // 根据Tab标题分组的策略
 const tabTitleStrategy = {
-  shloudGroup: (changeInfo, tab) => {
+  shouldGroup: (changeInfo, tab) => {
     return (
       changeInfo.title &&
       userConfig.tabTitlePattern &&
@@ -67,7 +67,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
     const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
     // 如果满足group的条件，进行group
-    if (strategy.shloudGroup(changeInfo, tab)) {
+    if (strategy.shouldGroup(changeInfo, tab)) {
       groupTabs(tab, strategy);
     }
 
