@@ -13,6 +13,7 @@ import React from "react";
 import "./ConfigPags.css";
 import { injectIntl } from "react-intl";
 import PropTypes from "prop-types";
+import TextArea from "antd/lib/input/TextArea";
 
 class ConfigPage extends React.Component {
   static propTypes = {
@@ -29,6 +30,7 @@ class ConfigPage extends React.Component {
       groupTabNum: 1,
       tabTitlePattern: "",
       applyLoading: false,
+      groupNameConfig: {},
     };
   }
 
@@ -60,6 +62,12 @@ class ConfigPage extends React.Component {
     this.setState(newState);
     chrome.storage.sync.set(newState);
   };
+
+  onGroupNameConfigChange= (value)=> {
+    const newState = { groupNameConfig: value.target.value }
+    this.setState(newState);
+    chrome.storage.sync.set(newState);
+  }
 
   onGroupStrategyChange = (e) => {
     const newState = { groupStrategy: e.target.value };
@@ -150,6 +158,11 @@ class ConfigPage extends React.Component {
               />
             </Form.Item>
           )}
+          <Form.Item label='基于正则分类（将覆盖上面的规则）'>
+            <TextArea
+                value={this.state.groupNameConfig}
+                onChange={this.onGroupNameConfigChange}/>
+          </Form.Item>
         </Form>
       </div>
     );
