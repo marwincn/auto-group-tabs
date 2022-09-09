@@ -2,7 +2,6 @@ import {
   Button,
   Divider,
   Form,
-  Input,
   InputNumber,
   Radio,
   Switch,
@@ -93,7 +92,6 @@ class ConfigPage extends React.Component {
     const groupStrategyOptions = [
       { label: this.i18n("domain"), value: 1 },
       { label: this.i18n("sld"), value: 2 },
-      { label: this.i18n("tab_title"), value: 3 },
     ];
 
     return (
@@ -108,7 +106,10 @@ class ConfigPage extends React.Component {
               👏 {this.i18n("group_all_tabs")}
             </Button>
           </Form.Item>
+
           <Divider style={{ margin: "12px 0" }} />
+          <h5>配置</h5>
+
           <Form.Item label={this.i18n("enable_auto_group")}>
             <Switch
               checked={this.state.enableAutoGroup}
@@ -131,6 +132,10 @@ class ConfigPage extends React.Component {
               onChange={this.onGroupTabNumChange}
             />
           </Form.Item>
+
+          <Divider style={{ margin: "12px 0" }} />
+          <h5>基础选项</h5>
+
           <Form.Item label={this.i18n("group_strategy")}>
             <Radio.Group
               options={groupStrategyOptions}
@@ -145,24 +150,16 @@ class ConfigPage extends React.Component {
           {this.state.groupStrategy === 2 && (
             <Alert message={this.i18n("sld_tip")} type="info" />
           )}
-          {this.state.groupStrategy === 3 && (
-            <Form.Item label={this.i18n("tab_title_contains")}>
-              <Input.Search
-                enterButton={this.i18n("apply")}
-                placeholder={this.i18n("input_placeholder")}
-                value={this.state.tabTitlePattern}
-                onChange={this.onTabTitlePatternChange}
-                loading={this.state.applyLoading}
-                disabled={this.state.groupStrategy !== 3}
-                onSearch={this.onTabTitlePatternApply}
-              />
-            </Form.Item>
-          )}
-          <Form.Item label='基于正则分类（将覆盖上面的规则）'>
+
+          <Divider style={{ margin: "12px 0" }}  />
+          <h5>高级选项</h5>
+
+          <Form.Item label='基于正则对标题或URL分类'>
             <TextArea
                 value={this.state.groupNameConfig}
                 onChange={this.onGroupNameConfigChange}/>
           </Form.Item>
+
         </Form>
       </div>
     );

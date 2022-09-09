@@ -29,33 +29,34 @@ const secDomainStrategy = {
   },
 };
 // 根据Tab标题分组的策略
-const tabTitleStrategy = {
-  shouldGroup: (changeInfo, tab) => {
-    return (
-      changeInfo.title &&
-      userConfig.tabTitlePattern &&
-      tab.title.includes(userConfig.tabTitlePattern)
-    );
-  },
-  getGroupTitle: (tab) => {
-    return tab.title.includes(userConfig.tabTitlePattern)
-      ? userConfig.tabTitlePattern
-      : null;
-  },
-  querySameTabs: () => {
-    const queryInfo = {
-      title: `*${userConfig.tabTitlePattern}*`,
-      windowId: chrome.windows.WINDOW_ID_CURRENT,
-      pinned: false,
-    };
-    return chrome.tabs.query(queryInfo);
-  },
-};
+// const tabTitleStrategy = {
+  // shouldGroup: (changeInfo, tab) => {
+  //   return (
+  //     changeInfo.title &&
+  //     userConfig.tabTitlePattern &&
+  //     tab.title.includes(userConfig.tabTitlePattern)
+  //   );
+  // },
+  // getGroupTitle: (tab) => {
+  //   return tab.title.includes(userConfig.tabTitlePattern)
+  //     ? userConfig.tabTitlePattern
+  //     : null;
+  // },
+  // querySameTabs: () => {
+  //   const queryInfo = {
+  //     title: `*${userConfig.tabTitlePattern}*`,
+  //     windowId: chrome.windows.WINDOW_ID_CURRENT,
+  //     pinned: false,
+  //   };
+  //   return chrome.tabs.query(queryInfo);
+  // },
+// };
+
 // 定义分组策略
 const GROUP_STRATEGY_MAP = new Map();
 GROUP_STRATEGY_MAP.set(1, domainStrategy);
 GROUP_STRATEGY_MAP.set(2, secDomainStrategy);
-GROUP_STRATEGY_MAP.set(3, tabTitleStrategy);
+// GROUP_STRATEGY_MAP.set(3, tabTitleStrategy);
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   chrome.storage.sync.get(Object.keys(DEFAULT_CONFIG), (config) => {
@@ -191,9 +192,13 @@ function groupTabs(tab, strategy) {
 }
 
 function getGroupTitle(tab,strategy){
-  //优先基于正则去分组
+  //基于正则去分组
   let rules = JSON.parse(userConfig.groupNameConfig);
   for(let rule in rules){
+    if(tab.title.match(rule)){
+      console.log(tab.title+" match "+rule +", group by "+rules[rule]);
+      return rules[rule]
+    }
     if(tab.url.match(rule)){
       console.log(tab.url+" match "+rule +", group by "+rules[rule]);
       return rules[rule]
@@ -205,12 +210,7 @@ function getGroupTitle(tab,strategy){
 }
 
 async function querySameTabs(tab,strategy){
-    //优先按照tab选项进行分组
-    if(strategy.querySameTabs){
-      return strategy.querySameTabs()
-    }
-
-    //其次，按照getGroupTitle进行分组
+    //按照getGroupTitle进行分组
     const tabGroupTitle = getGroupTitle(tab,strategy);
     let tabs;
     await chrome.tabs
