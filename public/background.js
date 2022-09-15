@@ -5,82 +5,34 @@ const DEFAULT_CONFIG = {
   groupTabNum: 1, // 满足多少个tab时才进行分组
   groupStrategy: 2, // 分组策略
   tabTitlePattern: "", // tab名称匹配的规则
+  groupNameConfig: ""
 };
 // 全局的用户配置
 let userConfig = DEFAULT_CONFIG;
 
 // 根据域名分组的策略
 const domainStrategy = {
-  shloudGroup: (changeInfo, tab) => {
+  shouldGroup: (changeInfo, tab) => {
     return changeInfo.url && tab.url.match(/^https?:\/\/[^/]+\/.*/);
   },
   getGroupTitle: (tab) => {
     return getDomain(tab.url);
   },
-  querySameTabs: async (tab) => {
-    const domain = getDomain(tab.url);
-    let tabs;
-    await chrome.tabs
-      .query({
-        windowId: chrome.windows.WINDOW_ID_CURRENT,
-        pinned: false,
-      })
-      .then((allTabs) => {
-        tabs = allTabs.filter((t) => t.url && domain === getDomain(t.url));
-      });
-    return tabs;
-  },
 };
 // 根据二级域名分组的策略
 const secDomainStrategy = {
-  shloudGroup: (changeInfo, tab) => {
+  shouldGroup: (changeInfo, tab) => {
     return changeInfo.url && tab.url.match(/^https?:\/\/[^/]+\/.*/);
   },
   getGroupTitle: (tab) => {
     return getSecDomain(tab.url);
   },
-  querySameTabs: async (tab) => {
-    const domain = getSecDomain(tab.url);
-    let tabs;
-    await chrome.tabs
-      .query({
-        windowId: chrome.windows.WINDOW_ID_CURRENT,
-        pinned: false,
-      })
-      .then((allTabs) => {
-        tabs = allTabs.filter((t) => t.url && domain === getSecDomain(t.url));
-      });
-    return tabs;
-  },
 };
-// 根据Tab标题分组的策略
-const tabTitleStrategy = {
-  shloudGroup: (changeInfo, tab) => {
-    return (
-      changeInfo.title &&
-      userConfig.tabTitlePattern &&
-      tab.title.includes(userConfig.tabTitlePattern)
-    );
-  },
-  getGroupTitle: (tab) => {
-    return tab.title.includes(userConfig.tabTitlePattern)
-      ? userConfig.tabTitlePattern
-      : null;
-  },
-  querySameTabs: () => {
-    const queryInfo = {
-      title: `*${userConfig.tabTitlePattern}*`,
-      windowId: chrome.windows.WINDOW_ID_CURRENT,
-      pinned: false,
-    };
-    return chrome.tabs.query(queryInfo);
-  },
-};
+
 // 定义分组策略
 const GROUP_STRATEGY_MAP = new Map();
 GROUP_STRATEGY_MAP.set(1, domainStrategy);
 GROUP_STRATEGY_MAP.set(2, secDomainStrategy);
-GROUP_STRATEGY_MAP.set(3, tabTitleStrategy);
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   chrome.storage.sync.get(Object.keys(DEFAULT_CONFIG), (config) => {
@@ -92,13 +44,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
     const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
     // 如果满足group的条件，进行group
-    if (strategy.shloudGroup(changeInfo, tab)) {
+    if (strategy.shouldGroup(changeInfo, tab)) {
       groupTabs(tab, strategy);
     }
 
     // 如果有tab从分组中移除，需要判断group的数量是否还满足数量，如果不满足ungroup
     if (changeInfo.groupId && changeInfo.groupId === -1) {
-      strategy.querySameTabs(tab).then((tabs) => {
+      querySameTabs(tab,strategy).then((tabs) => {
         const tabIds = tabs.map((t) => t.id);
         // 如果tab数量不满足设置最小数量进行ungroup
         if (tabs.length > 0 && tabs.length < userConfig.groupTabNum) {
@@ -137,7 +89,8 @@ function mergeSameTabs() {
       tabs.forEach((tab) => {
         let key = tab.url;
         if (key) {
-          key = key.split("#")[0];
+          // 存在 foo.com/#/page1111, foo.com/#/page222 的场景，导致基于#切分会误合并页面
+          // key = key.split("#")[0];
           if (!tabGroups[key]) {
             tabGroups[key] = [tab];
           } else {
@@ -163,7 +116,7 @@ function groupAllTabs() {
       // 按groupTitle分组，key为groupTitle，value为tabs
       let tabGroups = {};
       tabs.forEach((tab) => {
-        const groupTitle = strategy.getGroupTitle(tab);
+        const groupTitle = getGroupTitle(tab,strategy);
         if (groupTitle) {
           if (!tabGroups[groupTitle]) {
             tabGroups[groupTitle] = [];
@@ -186,7 +139,7 @@ function groupAllTabs() {
 }
 
 function groupTabs(tab, strategy) {
-  strategy.querySameTabs(tab).then((tabs) => {
+  querySameTabs(tab,strategy).then((tabs) => {
     const tabIds = tabs.map((t) => t.id);
     // 如果tab数量不满足设置最小数量进行ungroup
     if (tabs.length < userConfig.groupTabNum) {
@@ -194,7 +147,7 @@ function groupTabs(tab, strategy) {
       return;
     }
     // 查询分组，如果分组存在则加入分组，否则新建分组
-    const groupTitle = strategy.getGroupTitle(tab);
+    const groupTitle = getGroupTitle(tab,strategy);
     if (groupTitle) {
       chrome.tabGroups
         .query({
@@ -212,6 +165,45 @@ function groupTabs(tab, strategy) {
         });
     }
   });
+}
+
+function getGroupTitle(tab,strategy){
+  //基于正则去分组
+  let lines = userConfig.groupNameConfig.split("\n");
+  console.log(lines);
+
+  for(let line of lines){
+    let arr = line.split(' ').filter(item => item !== '');
+    let rule = arr[0];
+    let groupName = arr[1];
+    console.log(arr+" rule "+rule+" name "+groupName);
+    if(tab.title.match(rule)){
+      console.log(tab.title+" match "+rule +", group by "+groupName);
+      return groupName
+    }
+    if(tab.url.match(rule)){
+      console.log(tab.url+" match "+rule +", group by "+groupName);
+      return groupName
+    }
+  }
+
+  //按照基础策略分组
+  return strategy.getGroupTitle(tab);
+}
+
+async function querySameTabs(tab,strategy){
+    //按照getGroupTitle进行分组
+    const tabGroupTitle = getGroupTitle(tab,strategy);
+    let tabs;
+    await chrome.tabs
+        .query({
+          windowId: chrome.windows.WINDOW_ID_CURRENT,
+          pinned: false,
+        })
+        .then((allTabs) => {
+          tabs = allTabs.filter((t) => t.url && tabGroupTitle === getGroupTitle(t,strategy));
+        });
+    return tabs;
 }
 
 function getDomain(url) {

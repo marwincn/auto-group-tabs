@@ -2,7 +2,6 @@ import {
   Button,
   Divider,
   Form,
-  Input,
   InputNumber,
   Radio,
   Switch,
@@ -13,6 +12,7 @@ import React from "react";
 import "./ConfigPags.css";
 import { injectIntl } from "react-intl";
 import PropTypes from "prop-types";
+import TextArea from "antd/lib/input/TextArea";
 
 class ConfigPage extends React.Component {
   static propTypes = {
@@ -29,6 +29,7 @@ class ConfigPage extends React.Component {
       groupTabNum: 1,
       tabTitlePattern: "",
       applyLoading: false,
+      groupNameConfig: {},
     };
   }
 
@@ -61,6 +62,12 @@ class ConfigPage extends React.Component {
     chrome.storage.sync.set(newState);
   };
 
+  onGroupNameConfigChange= (value)=> {
+    const newState = { groupNameConfig: value.target.value }
+    this.setState(newState);
+    chrome.storage.sync.set(newState);
+  }
+
   onGroupStrategyChange = (e) => {
     const newState = { groupStrategy: e.target.value };
     this.setState(newState);
@@ -85,7 +92,6 @@ class ConfigPage extends React.Component {
     const groupStrategyOptions = [
       { label: this.i18n("domain"), value: 1 },
       { label: this.i18n("sld"), value: 2 },
-      { label: this.i18n("tab_title"), value: 3 },
     ];
 
     return (
@@ -100,7 +106,9 @@ class ConfigPage extends React.Component {
               👏 {this.i18n("group_all_tabs")}
             </Button>
           </Form.Item>
+
           <Divider style={{ margin: "12px 0" }} />
+
           <Form.Item label={this.i18n("enable_auto_group")}>
             <Switch
               checked={this.state.enableAutoGroup}
@@ -123,6 +131,9 @@ class ConfigPage extends React.Component {
               onChange={this.onGroupTabNumChange}
             />
           </Form.Item>
+
+          <Divider style={{ margin: "12px 0" }} />
+
           <Form.Item label={this.i18n("group_strategy")}>
             <Radio.Group
               options={groupStrategyOptions}
@@ -137,19 +148,17 @@ class ConfigPage extends React.Component {
           {this.state.groupStrategy === 2 && (
             <Alert message={this.i18n("sld_tip")} type="info" />
           )}
-          {this.state.groupStrategy === 3 && (
-            <Form.Item label={this.i18n("tab_title_contains")}>
-              <Input.Search
-                enterButton={this.i18n("apply")}
-                placeholder={this.i18n("input_placeholder")}
-                value={this.state.tabTitlePattern}
-                onChange={this.onTabTitlePatternChange}
-                loading={this.state.applyLoading}
-                disabled={this.state.groupStrategy !== 3}
-                onSearch={this.onTabTitlePatternApply}
-              />
-            </Form.Item>
-          )}
+
+          <Divider style={{ margin: "12px 0" }}  />
+
+          <Form.Item label='基于正则对标题或URL分类'>
+            <TextArea
+                placeholder={'将按照从上到下的优先级进行标签归类，格式为: 「关键词或正则表达式 标签名」。例如：\nmail.qq|mail.google mail\nsspai|mo.fish|v2ex 摸鱼\nfigma|yuque work'}
+                autoSize={{ minRows: 4, maxRows: 50 }}
+                value={this.state.groupNameConfig}
+                onChange={this.onGroupNameConfigChange}/>
+          </Form.Item>
+
         </Form>
       </div>
     );

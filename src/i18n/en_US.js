@@ -2,7 +2,7 @@ export default {
   group_all_tabs: "Group all tabs right now!",
   enable_auto_group: "Enable auto group tabs:",
   min_number: "Min-number of tabs per group:",
-  group_strategy: "Group strategy:",
+  group_strategy: "Basic group strategy:",
   domain: "Domain",
   domain_tip: "Full domain name. Match 'www.google.com' in https://www.google.com/",
   sld: "SLD",
