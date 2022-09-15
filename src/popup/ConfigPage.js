@@ -108,7 +108,6 @@ class ConfigPage extends React.Component {
           </Form.Item>
 
           <Divider style={{ margin: "12px 0" }} />
-          <h5>配置</h5>
 
           <Form.Item label={this.i18n("enable_auto_group")}>
             <Switch
@@ -134,7 +133,6 @@ class ConfigPage extends React.Component {
           </Form.Item>
 
           <Divider style={{ margin: "12px 0" }} />
-          <h5>基础选项</h5>
 
           <Form.Item label={this.i18n("group_strategy")}>
             <Radio.Group
@@ -152,10 +150,11 @@ class ConfigPage extends React.Component {
           )}
 
           <Divider style={{ margin: "12px 0" }}  />
-          <h5>高级选项</h5>
 
           <Form.Item label='基于正则对标题或URL分类'>
             <TextArea
+                placeholder={'json格式，例如 {\n  "*.google.*/maps" : "group-1",\n  "*.google.com" : "group-2"\n}\n将按照从上到下的优先级进行标签归类'}
+                autoSize={{ minRows: 4, maxRows: 50 }}
                 value={this.state.groupNameConfig}
                 onChange={this.onGroupNameConfigChange}/>
           </Form.Item>

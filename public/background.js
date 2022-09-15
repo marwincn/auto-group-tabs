@@ -28,35 +28,11 @@ const secDomainStrategy = {
     return getSecDomain(tab.url);
   },
 };
-// 根据Tab标题分组的策略
-// const tabTitleStrategy = {
-  // shouldGroup: (changeInfo, tab) => {
-  //   return (
-  //     changeInfo.title &&
-  //     userConfig.tabTitlePattern &&
-  //     tab.title.includes(userConfig.tabTitlePattern)
-  //   );
-  // },
-  // getGroupTitle: (tab) => {
-  //   return tab.title.includes(userConfig.tabTitlePattern)
-  //     ? userConfig.tabTitlePattern
-  //     : null;
-  // },
-  // querySameTabs: () => {
-  //   const queryInfo = {
-  //     title: `*${userConfig.tabTitlePattern}*`,
-  //     windowId: chrome.windows.WINDOW_ID_CURRENT,
-  //     pinned: false,
-  //   };
-  //   return chrome.tabs.query(queryInfo);
-  // },
-// };
 
 // 定义分组策略
 const GROUP_STRATEGY_MAP = new Map();
 GROUP_STRATEGY_MAP.set(1, domainStrategy);
 GROUP_STRATEGY_MAP.set(2, secDomainStrategy);
-// GROUP_STRATEGY_MAP.set(3, tabTitleStrategy);
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   chrome.storage.sync.get(Object.keys(DEFAULT_CONFIG), (config) => {
@@ -193,15 +169,21 @@ function groupTabs(tab, strategy) {
 
 function getGroupTitle(tab,strategy){
   //基于正则去分组
-  let rules = JSON.parse(userConfig.groupNameConfig);
-  for(let rule in rules){
+  let lines = userConfig.groupNameConfig.split("\n");
+  console.log(lines);
+
+  for(let line of lines){
+    let arr = line.split(' ').filter(item => item !== '');
+    let rule = arr[0];
+    let groupName = arr[1];
+    console.log(arr+" rule "+rule+" name "+groupName);
     if(tab.title.match(rule)){
-      console.log(tab.title+" match "+rule +", group by "+rules[rule]);
-      return rules[rule]
+      console.log(tab.title+" match "+rule +", group by "+groupName);
+      return groupName
     }
     if(tab.url.match(rule)){
-      console.log(tab.url+" match "+rule +", group by "+rules[rule]);
-      return rules[rule]
+      console.log(tab.url+" match "+rule +", group by "+groupName);
+      return groupName
     }
   }
 
