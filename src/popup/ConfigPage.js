@@ -153,7 +153,7 @@ class ConfigPage extends React.Component {
 
           <Form.Item label='基于正则对标题或URL分类'>
             <TextArea
-                placeholder={'json格式，例如 {\n  "*.google.*/maps" : "group-1",\n  "*.google.com" : "group-2"\n}\n将按照从上到下的优先级进行标签归类'}
+                placeholder={'将按照从上到下的优先级进行标签归类，格式为: 「关键词或正则表达式 标签名」。例如：\nmail.qq|mail.google mail\nsspai|mo.fish|v2ex 摸鱼\nfigma|yuque work'}
                 autoSize={{ minRows: 4, maxRows: 50 }}
                 value={this.state.groupNameConfig}
                 onChange={this.onGroupNameConfigChange}/>
