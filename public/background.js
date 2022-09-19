@@ -4,6 +4,7 @@ const DEFAULT_CONFIG = {
   groupTabNum: 1, // 满足多少个tab时才进行分组
   groupStrategy: 2, // 分组策略
   tabTitlePattern: "", // tab名称匹配的规则
+  showGroupTitle: true,
 };
 // 全局的用户配置
 let userConfig = DEFAULT_CONFIG;
@@ -81,6 +82,18 @@ GROUP_STRATEGY_MAP.set(1, domainStrategy);
 GROUP_STRATEGY_MAP.set(2, secDomainStrategy);
 GROUP_STRATEGY_MAP.set(3, tabTitleStrategy);
 
+// 存储groupKey和对应的groupId
+const GROUP_MAP = new Map();
+// 监听group的删除事件，如果group被删除要清理Map，避免内存泄漏
+chrome.tabGroups.onRemoved.addListener((group) => {
+  GROUP_MAP.forEach((groupId, groupKey, map) => {
+    if (groupId === group.groupId) {
+      map.delete(groupKey);
+    }
+  })
+});
+
+// 监听tab变更事件
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   chrome.storage.sync.get(Object.keys(DEFAULT_CONFIG), (config) => {
     userConfig = { ...DEFAULT_CONFIG, ...config };
@@ -90,24 +103,26 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 
     const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
+    // 如果有tab从分组中移除，需要判断group的数量是否还满足数量，如果不满足ungroup
+    if (changeInfo.groupId && changeInfo.groupId === -1) {
+      strategy.querySameTabs(tab).then((tabs) => {
+        // 如果tab数量不满足设置最小数量进行ungroup
+        if (tabs.length > 0 && tabs.length < userConfig.groupTabNum) {
+          const tabIds = tabs.map((t) => t.id);
+          chrome.tabs.ungroup(tabIds);
+        }
+      });
+      return;
+    }
+
     // 如果满足group的条件，进行group
     if (strategy.shloudGroup(changeInfo, tab)) {
       groupTabs(tab, strategy);
     }
-
-    // 如果有tab从分组中移除，需要判断group的数量是否还满足数量，如果不满足ungroup
-    if (changeInfo.groupId && changeInfo.groupId === -1) {
-      strategy.querySameTabs(tab).then((tabs) => {
-        const tabIds = tabs.map((t) => t.id);
-        // 如果tab数量不满足设置最小数量进行ungroup
-        if (tabs.length > 0 && tabs.length < userConfig.groupTabNum) {
-          chrome.tabs.ungroup(tabIds);
-        }
-      });
-    }
   });
 });
 
+// 监听一键group事件
 chrome.runtime.onMessage.addListener((request) => {
   if (request.groupRightNow) {
     chrome.storage.sync.get(Object.keys(DEFAULT_CONFIG), (config) => {
@@ -121,6 +136,8 @@ function groupAllTabs() {
   chrome.tabs
     .query({ windowId: chrome.windows.WINDOW_ID_CURRENT })
     .then((tabs) => {
+      // TODO：忽略被固定的tab（增加配置项）
+      // tabs = tabs.filter(tab => !tab.pinned);
       const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
       // 按groupTitle分组，key为groupTitle，value为tabs
       let tabGroups = {};
@@ -137,9 +154,7 @@ function groupAllTabs() {
       for (const groupTitle in tabGroups) {
         const tabIds = tabGroups[groupTitle].map((tab) => tab.id);
         if (tabGroups[groupTitle].length >= userConfig.groupTabNum) {
-          chrome.tabs.group({ tabIds }).then((groupId) => {
-            chrome.tabGroups.update(groupId, { title: groupTitle });
-          });
+          newGroup(tabIds, groupTitle);
         } else {
           chrome.tabs.ungroup(tabIds);
         }
@@ -155,25 +170,32 @@ function groupTabs(tab, strategy) {
       chrome.tabs.ungroup(tabIds);
       return;
     }
-    // 查询分组，如果分组存在则加入分组，否则新建分组
-    const groupTitle = strategy.getGroupTitle(tab);
-    if (groupTitle) {
-      chrome.tabGroups
-        .query({
-          title: groupTitle,
-          windowId: chrome.windows.WINDOW_ID_CURRENT,
-        })
-        .then((tabGroups) => {
-          if (tabGroups && tabGroups.length > 0) {
-            chrome.tabs.group({ tabIds, groupId: tabGroups[0].id });
-          } else {
-            chrome.tabs.group({ tabIds }).then((groupId) => {
-              chrome.tabGroups.update(groupId, { title: groupTitle });
-            });
-          }
-        });
+    // 如果获取的groupTitle为空则忽略
+    if (!strategy.getGroupTitle(tab)) {
+      return;
+    }
+    const groupKey = getGroupKey(strategy.getGroupTitle(tab));
+    // 如果tab存在就加入分组，否则就新建分组
+    if (GROUP_MAP.has(groupKey)) {
+      const groupId = GROUP_MAP.get(groupKey);
+      chrome.tabs.group({ tabIds, groupId: groupId });
+    } else {
+      newGroup(tabIds, strategy.getGroupTitle(tab));
     }
   });
+}
+
+function newGroup(tabIds, title) {
+  chrome.tabs.group({ tabIds }).then((groupId) => {
+    GROUP_MAP.set(getGroupKey(title), groupId);
+    if (userConfig.showGroupTitle) {
+      chrome.tabGroups.update(groupId, { title });
+    }
+  });
+}
+
+function getGroupKey(groupTitle) {
+  return chrome.windows.WINDOW_ID_CURRENT + ':' + groupTitle;
 }
 
 function getDomain(url) {
