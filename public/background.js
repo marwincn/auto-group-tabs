@@ -133,6 +133,17 @@ chrome.runtime.onMessage.addListener((request) => {
   }
 });
 
+chrome.commands.onCommand.addListener((command) => {
+  switch (command) {
+    case "group_right_now": {
+      chrome.storage.sync.get(Object.keys(DEFAULT_CONFIG), (config) => {
+        userConfig = { ...DEFAULT_CONFIG, ...config };
+        groupAllTabs();
+      });
+    }
+  }
+});
+
 function mergeSameTabs() {
   chrome.tabs
     .query({ windowId: chrome.windows.WINDOW_ID_CURRENT })

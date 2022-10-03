@@ -21,5 +21,10 @@
     "32": "/images/auto-group-tabs.png",
     "48": "/images/auto-group-tabs.png",
     "128": "/images/auto-group-tabs.png"
+  },
+  "commands": {
+    "group_right_now": {
+      "description": "Group all tabs right now"
+    }
   }
 }
