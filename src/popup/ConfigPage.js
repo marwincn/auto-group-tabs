@@ -24,6 +24,7 @@ class ConfigPage extends React.Component {
     this.i18n = (key) => props.intl.formatMessage({ id: key });
     this.state = {
       enableAutoGroup: true,
+      enableShowGroupTitle: true,
       groupStrategy: 2,
       groupTabNum: 1,
       tabTitlePattern: "",
@@ -43,6 +44,12 @@ class ConfigPage extends React.Component {
 
   onEnableAutoGroupChange = (value) => {
     const newState = { enableAutoGroup: value };
+    this.setState(newState);
+    chrome.storage.sync.set(newState);
+  };
+
+  onEnableShowGroupTitle = (value) => {
+    const newState = { enableShowGroupTitle: value };
     this.setState(newState);
     chrome.storage.sync.set(newState);
   };
@@ -81,7 +88,7 @@ class ConfigPage extends React.Component {
     ];
 
     return (
-      <div style={{ width: "280px", height: "400px", overflow: "auto" }}>
+      <div className="mainPanel">
         <Form labelAlign="left" layout="vertical" style={{ padding: "16px" }}>
           <Form.Item style={{ textAlign: "center" }}>
             <Button
@@ -97,6 +104,12 @@ class ConfigPage extends React.Component {
             <Switch
               checked={this.state.enableAutoGroup}
               onChange={this.onEnableAutoGroupChange}
+            />
+          </Form.Item>
+          <Form.Item label={this.i18n("enable_show_group_title")}>
+            <Switch
+              checked={this.state.enableShowGroupTitle}
+              onChange={this.onEnableShowGroupTitle}
             />
           </Form.Item>
           <Form.Item label={this.i18n("min_number")}>
