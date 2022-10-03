@@ -25,6 +25,7 @@ class ConfigPage extends React.Component {
     this.state = {
       enableAutoGroup: true,
       enableMerge: true,
+      enableShowGroupTitle: true,
       groupStrategy: 2,
       groupTabNum: 1,
       tabTitlePattern: "",
@@ -51,6 +52,12 @@ class ConfigPage extends React.Component {
     const newState = {
       enableMerge: value,
     };
+    this.setState(newState);
+    chrome.storage.sync.set(newState);
+  };
+
+  onEnableShowGroupTitle = (value) => {
+    const newState = { enableShowGroupTitle: value };
     this.setState(newState);
     chrome.storage.sync.set(newState);
   };
@@ -89,7 +96,7 @@ class ConfigPage extends React.Component {
     ];
 
     return (
-      <div style={{ width: "280px", height: "455px", overflow: "auto" }}>
+      <div className="mainPanel">
         <Form labelAlign="left" layout="vertical" style={{ padding: "16px" }}>
           <Form.Item style={{ textAlign: "center" }}>
             <Button
@@ -114,6 +121,12 @@ class ConfigPage extends React.Component {
             <Switch
               checked={this.state.enableMerge}
               onChange={this.onEnableMerge}
+            />
+          </Form.Item>
+          <Form.Item label={this.i18n("enable_show_group_title")}>
+            <Switch
+              checked={this.state.enableShowGroupTitle}
+              onChange={this.onEnableShowGroupTitle}
             />
           </Form.Item>
           <Form.Item label={this.i18n("min_number")}>
