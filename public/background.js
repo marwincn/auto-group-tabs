@@ -133,6 +133,7 @@ chrome.runtime.onMessage.addListener((request) => {
   }
 });
 
+// 监听一键group快捷键
 chrome.commands.onCommand.addListener((command) => {
   switch (command) {
     case "group_right_now": {
@@ -172,10 +173,8 @@ function groupAllTabs() {
   });
 
   chrome.tabs
-    .query({ windowId: chrome.windows.WINDOW_ID_CURRENT })
+    .query({ windowId: chrome.windows.WINDOW_ID_CURRENT, pinned: false,})
     .then((tabs) => {
-      // TODO：忽略被固定的tab（增加配置项）
-      // tabs = tabs.filter(tab => !tab.pinned);
       const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
       // 按groupTitle分组，key为groupTitle，value为tabs
       let tabGroups = {};

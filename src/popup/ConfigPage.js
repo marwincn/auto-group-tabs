@@ -62,6 +62,12 @@ class ConfigPage extends React.Component {
     chrome.storage.sync.set(newState);
   };
 
+  onEnableShowGroupTitle = (value) => {
+    const newState = { enableShowGroupTitle: value };
+    this.setState(newState);
+    chrome.storage.sync.set(newState);
+  };
+
   onGroupTabNumChange = (value) => {
     const newState = { groupTabNum: value };
     this.setState(newState);

@@ -1,5 +1,5 @@
 export default {
-  group_all_tabs: "Group all tabs right now!",
+  group_all_tabs: "Group all tabs (Alt + G)",
   enable_auto_group: "Enable auto group tabs:",
   enable_show_group_title: "Enable show group title:",
   min_number: "Min-number of tabs per group:",
