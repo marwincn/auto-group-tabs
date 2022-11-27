@@ -24,6 +24,7 @@ class ConfigPage extends React.Component {
     this.i18n = (key) => props.intl.formatMessage({ id: key });
     this.state = {
       enableAutoGroup: true,
+      enableMerge: true,
       enableShowGroupTitle: true,
       groupStrategy: 2,
       groupTabNum: 1,
@@ -44,6 +45,19 @@ class ConfigPage extends React.Component {
 
   onEnableAutoGroupChange = (value) => {
     const newState = { enableAutoGroup: value };
+    this.setState(newState);
+    chrome.storage.sync.set(newState);
+  };
+  onEnableMerge = (value) => {
+    const newState = {
+      enableMerge: value,
+    };
+    this.setState(newState);
+    chrome.storage.sync.set(newState);
+  };
+
+  onEnableShowGroupTitle = (value) => {
+    const newState = { enableShowGroupTitle: value };
     this.setState(newState);
     chrome.storage.sync.set(newState);
   };
@@ -104,6 +118,15 @@ class ConfigPage extends React.Component {
             <Switch
               checked={this.state.enableAutoGroup}
               onChange={this.onEnableAutoGroupChange}
+            />
+          </Form.Item>
+          <Form.Item
+            tooltip={this.i18n("merge_tip")}
+            label={this.i18n("enable_merge")}
+          >
+            <Switch
+              checked={this.state.enableMerge}
+              onChange={this.onEnableMerge}
             />
           </Form.Item>
           <Form.Item label={this.i18n("enable_show_group_title")}>

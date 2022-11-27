@@ -1,6 +1,7 @@
 // 默认配置
 const DEFAULT_CONFIG = {
   enableAutoGroup: true, // 是否启动自动分组
+  enableMerge: true, // 是否自动合并相同tab
   enableShowGroupTitle: true, // 是否显示分组名称
   groupTabNum: 1, // 满足多少个tab时才进行分组
   groupStrategy: 2, // 分组策略
@@ -144,12 +145,36 @@ chrome.commands.onCommand.addListener((command) => {
   }
 });
 
+function mergeSameTabs() {
+  chrome.tabs
+    .query({ windowId: chrome.windows.WINDOW_ID_CURRENT })
+    .then((tabs) => {
+      let tabGroups = {};
+      tabs.forEach((tab) => {
+        let key = tab.url;
+        if (key) {
+          key = key.split("#")[0];
+          if (!tabGroups[key]) {
+            tabGroups[key] = [tab];
+          } else {
+            chrome.tabs.remove(tab.id);
+          }
+        }
+      });
+    });
+}
 
 function groupAllTabs() {
+  chrome.storage.sync.get(Object.keys(DEFAULT_CONFIG), (config) => {
+    userConfig = { ...DEFAULT_CONFIG, ...config };
+    if (userConfig.enableMerge) {
+      mergeSameTabs();
+    }
+  });
+
   chrome.tabs
     .query({ windowId: chrome.windows.WINDOW_ID_CURRENT, pinned: false,})
     .then((tabs) => {
-      // tabs = tabs.filter(tab => !tab.pinned);
       const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
       // 按groupTitle分组，key为groupTitle，value为tabs
       let tabGroups = {};

@@ -12,4 +12,6 @@ export default {
   tab_title_contains: "Tab标题包含：",
   apply: "应用",
   input_placeholder: "不填则不匹配",
+  enable_merge: "是否合并相同 Tab：",
+  merge_tip: "在一键分组时，合并相同路径的 Tab 页面",
 };
