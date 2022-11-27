@@ -1,5 +1,5 @@
 export default {
-  group_all_tabs: "一键分组所有Tabs",
+  group_all_tabs: "一键分组所有Tabs (Alt+G)",
   enable_auto_group: "是否开启自动分组：",
   enable_show_group_title: "是否显示分组名称：",
   min_number: "每个分组最小Tab数量：",
