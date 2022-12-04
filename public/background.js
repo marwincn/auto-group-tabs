@@ -1,7 +1,6 @@
 // 默认配置
 const DEFAULT_CONFIG = {
   enableAutoGroup: true, // 是否启动自动分组
-  enableMerge: true, // 是否自动合并相同tab
   enableShowGroupTitle: true, // 是否显示分组名称
   groupTabNum: 1, // 满足多少个tab时才进行分组
   groupStrategy: 2, // 分组策略
@@ -88,7 +87,7 @@ const GROUP_MAP = new Map();
 // 监听group的删除事件，如果group被删除要清理Map，避免内存泄漏
 chrome.tabGroups.onRemoved.addListener((group) => {
   GROUP_MAP.forEach((groupId, groupKey, map) => {
-    if (groupId === group.groupId) {
+    if (groupId === group.id) {
       map.delete(groupKey);
     }
   })
@@ -201,9 +200,14 @@ function groupAllTabs() {
 
 function groupTabs(tab, strategy) {
   strategy.querySameTabs(tab).then((tabs) => {
+    if (tabs.length === 0) {
+      console.log("no same tab for:" + tab);
+      return;
+    }
+
     const tabIds = tabs.map((t) => t.id);
     // 如果tab数量不满足设置最小数量进行ungroup
-    if (tabs.length < userConfig.groupTabNum) {
+    if (tabIds .length < userConfig.groupTabNum) {
       chrome.tabs.ungroup(tabIds);
       return;
     }
