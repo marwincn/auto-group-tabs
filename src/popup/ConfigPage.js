@@ -87,7 +87,7 @@ class ConfigPage extends React.Component {
     ];
 
     return (
-      <div style={{ width: "280px", height: "455px", overflow: "auto" }}>
+      <div className="mainPanel">
         <Form labelAlign="left" layout="vertical" style={{ padding: "16px" }}>
           <Form.Item style={{ textAlign: "center" }}>
             <Button

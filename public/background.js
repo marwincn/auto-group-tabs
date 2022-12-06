@@ -81,9 +81,18 @@ GROUP_STRATEGY_MAP.set(1, domainStrategy);
 GROUP_STRATEGY_MAP.set(2, secDomainStrategy);
 GROUP_STRATEGY_MAP.set(3, tabTitleStrategy);
 
-
 // 监听tab变更事件
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  // 如果不是http协议则ungroup掉
+  if (!(tab.url.startsWith("http") || tab.url.startsWith("https"))) {
+    // 如果用户手动拖拽tab到group中则ungroup会抛异常
+    try {
+      chrome.tabs.ungroup([tabId]);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   chrome.storage.sync.get(Object.keys(DEFAULT_CONFIG), (config) => {
     userConfig = { ...DEFAULT_CONFIG, ...config };
     // 判断是否开启自动分组
@@ -159,7 +168,7 @@ function groupAllTabs() {
   });
 
   chrome.tabs
-    .query({ windowId: chrome.windows.WINDOW_ID_CURRENT, pinned: false,})
+    .query({ windowId: chrome.windows.WINDOW_ID_CURRENT, pinned: false })
     .then((tabs) => {
       const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
       // 按groupTitle分组，key为groupTitle，value为tabs
@@ -196,7 +205,7 @@ function groupTabs(tab, strategy) {
 
     const tabIds = tabs.map((t) => t.id);
     // 如果tab数量不满足设置最小数量进行ungroup
-    if (tabIds .length < userConfig.groupTabNum) {
+    if (tabIds.length < userConfig.groupTabNum) {
       chrome.tabs.ungroup(tabIds);
       return;
     }
