@@ -5,9 +5,3 @@
 .ant-form-item {
     margin-bottom: 16px;
 }
-
-.mainPanel {
-    width: 280px;
-    height: 455px;
-    overflow: auto;
-}

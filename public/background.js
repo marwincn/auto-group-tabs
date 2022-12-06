@@ -1,10 +1,10 @@
 // 默认配置
 const DEFAULT_CONFIG = {
   enableAutoGroup: true, // 是否启动自动分组
-  enableShowGroupTitle: true, // 是否显示分组名称
   groupTabNum: 1, // 满足多少个tab时才进行分组
   groupStrategy: 2, // 分组策略
   tabTitlePattern: "", // tab名称匹配的规则
+  showGroupTitle: true,
 };
 // 全局的用户配置
 let userConfig = DEFAULT_CONFIG;
@@ -229,14 +229,13 @@ function groupTabs(tab, strategy) {
 function newGroup(tabIds, title) {
   chrome.tabs.group({ tabIds }).then((groupId) => {
     GROUP_MAP.set(getGroupKey(title), groupId);
-    if (userConfig.enableShowGroupTitle) {
+    if (userConfig.showGroupTitle) {
       chrome.tabGroups.update(groupId, { title });
     }
   });
 }
 
 function getGroupKey(groupTitle) {
-  // GroupKey包含windowId，实现不同window的tab之间的隔离
   return chrome.windows.WINDOW_ID_CURRENT + ':' + groupTitle;
 }
 
