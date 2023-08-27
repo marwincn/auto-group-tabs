@@ -2,7 +2,6 @@ import {
   Button,
   Divider,
   Form,
-  Input,
   InputNumber,
   Radio,
   Switch,
@@ -26,8 +25,6 @@ class ConfigPage extends React.Component {
       enableAutoGroup: true,
       groupStrategy: 2,
       groupTabNum: 1,
-      tabTitlePattern: "",
-      applyLoading: false,
     };
   }
 
@@ -47,12 +44,6 @@ class ConfigPage extends React.Component {
     chrome.storage.sync.set(newState);
   };
 
-  onEnableShowGroupTitle = (value) => {
-    const newState = { enableShowGroupTitle: value };
-    this.setState(newState);
-    chrome.storage.sync.set(newState);
-  };
-
   onGroupTabNumChange = (value) => {
     const newState = { groupTabNum: value };
     this.setState(newState);
@@ -65,25 +56,10 @@ class ConfigPage extends React.Component {
     chrome.storage.sync.set(newState);
   };
 
-  onTabTitlePatternApply = (value) => {
-    console.log(value);
-    this.setState({ applyLoading: true });
-    chrome.storage.sync.set({ tabTitlePattern: value }, () => {
-      setInterval(() => {
-        this.setState({ applyLoading: false });
-      }, 500);
-    });
-  };
-
-  onTabTitlePatternChange = (e) => {
-    this.setState({ tabTitlePattern: e.target.value });
-  };
-
   render() {
     const groupStrategyOptions = [
       { label: this.i18n("domain"), value: 1 },
       { label: this.i18n("sld"), value: 2 },
-      { label: this.i18n("tab_title"), value: 3 },
     ];
 
     return (
@@ -125,19 +101,6 @@ class ConfigPage extends React.Component {
           )}
           {this.state.groupStrategy === 2 && (
             <Alert message={this.i18n("sld_tip")} type="info" />
-          )}
-          {this.state.groupStrategy === 3 && (
-            <Form.Item label={this.i18n("tab_title_contains")}>
-              <Input.Search
-                enterButton={this.i18n("apply")}
-                placeholder={this.i18n("input_placeholder")}
-                value={this.state.tabTitlePattern}
-                onChange={this.onTabTitlePatternChange}
-                loading={this.state.applyLoading}
-                disabled={this.state.groupStrategy !== 3}
-                onSearch={this.onTabTitlePatternApply}
-              />
-            </Form.Item>
           )}
         </Form>
       </div>

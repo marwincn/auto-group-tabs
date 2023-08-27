@@ -7,8 +7,4 @@ export default {
   domain_tip: "Full domain name. Match 'www.google.com' in https://www.google.com/",
   sld: "SLD",
   sld_tip: "Second Level Domain. Match 'google' in https://www.google.com/",
-  tab_title: "Tab Title",
-  tab_title_contains: "Tab title contains:",
-  apply: "Apply",
-  input_placeholder: "Empty matches nothing",
 };

@@ -7,8 +7,4 @@ export default {
   domain_tip: "从 https://www.google.com/ 中匹配 'www.google.com'",
   sld: "二级域名",
   sld_tip: "从 https://www.google.com/ 中匹配 'google'",
-  tab_title: "Tab标题",
-  tab_title_contains: "Tab标题包含：",
-  apply: "应用",
-  input_placeholder: "不填则不匹配",
 };
