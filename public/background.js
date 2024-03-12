@@ -1,4 +1,4 @@
-import { getDomain, getSecDomain } from "./utils.js";
+import { domainStrategy, secDomainStrategy } from "./strategy.js";
 
 // 默认配置
 const DEFAULT_CONFIG = {
@@ -8,58 +8,6 @@ const DEFAULT_CONFIG = {
 };
 // 全局的用户配置
 let userConfig = DEFAULT_CONFIG;
-
-// 根据域名分组的策略
-const domainStrategy = {
-  shloudGroup: (changeInfo, tab) => {
-    return changeInfo.url && tab.url.match(/^https?:\/\/[^/]+\/.*/);
-  },
-  getGroupKey: (tab) => {
-    return getDomain(tab.url);
-  },
-  getGroupTitle: (tab) => {
-    return getDomain(tab.url);
-  },
-  querySameTabs: async (tab) => {
-    const domain = getDomain(tab.url);
-    let tabs;
-    await chrome.tabs
-      .query({
-        windowId: chrome.windows.WINDOW_ID_CURRENT,
-        pinned: false,
-      })
-      .then((allTabs) => {
-        tabs = allTabs.filter((t) => t.url && domain === getDomain(t.url));
-      });
-    return tabs;
-  },
-};
-
-// 根据二级域名分组的策略
-const secDomainStrategy = {
-  shloudGroup: (changeInfo, tab) => {
-    return changeInfo.url && tab.url.match(/^https?:\/\/[^/]+\/.*/);
-  },
-  getGroupKey: (tab) => {
-    return getSecDomain(tab.url);
-  },
-  getGroupTitle: (tab) => {
-    return getSecDomain(tab.url);
-  },
-  querySameTabs: async (tab) => {
-    const domain = getSecDomain(tab.url);
-    let tabs;
-    await chrome.tabs
-      .query({
-        windowId: chrome.windows.WINDOW_ID_CURRENT,
-        pinned: false,
-      })
-      .then((allTabs) => {
-        tabs = allTabs.filter((t) => t.url && domain === getSecDomain(t.url));
-      });
-    return tabs;
-  },
-};
 
 // 定义分组策略
 const GROUP_STRATEGY_MAP = new Map();
