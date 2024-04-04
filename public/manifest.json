@@ -4,7 +4,7 @@
   "version": "1.1.7",
   "manifest_version": 3,
   "background": {
-    "service_worker": "background.js",
+    "service_worker": "service_worker/background.js",
     "type": "module"
   },
   "permissions": ["storage", "tabs", "tabGroups"],
@@ -17,6 +17,7 @@
       "128": "/images/auto-group-tabs.png"
     }
   },
+  "options_page": "options.html",
   "icons": {
     "16": "/images/auto-group-tabs.png",
     "32": "/images/auto-group-tabs.png",
