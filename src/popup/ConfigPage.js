@@ -7,7 +7,6 @@ import {
   Switch,
   Alert,
 } from "antd";
-import "antd/dist/antd.css";
 import React from "react";
 import "./ConfigPags.css";
 import { injectIntl } from "react-intl";

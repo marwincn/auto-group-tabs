@@ -4,7 +4,7 @@
   "version": "1.1.7",
   "manifest_version": 3,
   "background": {
-    "service_worker": "service_worker/background.js",
+    "service_worker": "background/background.js",
     "type": "module"
   },
   "permissions": ["storage", "tabs", "tabGroups"],
