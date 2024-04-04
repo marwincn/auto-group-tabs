@@ -17,7 +17,7 @@
       "128": "/images/auto-group-tabs.png"
     }
   },
-  "options_page": "options.html",
+  "options_page": "index.html#options",
   "icons": {
     "16": "/images/auto-group-tabs.png",
     "32": "/images/auto-group-tabs.png",

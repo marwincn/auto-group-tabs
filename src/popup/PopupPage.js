@@ -8,11 +8,11 @@ import {
   Alert,
 } from "antd";
 import React from "react";
-import "./ConfigPags.css";
+import "./PopupPage.css";
 import { injectIntl } from "react-intl";
 import PropTypes from "prop-types";
 
-class ConfigPage extends React.Component {
+class PopupPage extends React.Component {
   static propTypes = {
     intl: PropTypes.object,
   };
@@ -107,4 +107,4 @@ class ConfigPage extends React.Component {
   }
 }
 
-export default injectIntl(ConfigPage);
+export default injectIntl(PopupPage);
