@@ -1,19 +1,16 @@
 import { getDomain } from "./utils.js";
 
 export const defaultConfiguration = {
-  rules: new Map([["google", ["*.google.com", "*.baidu.com"]]]),
-  fallback: 0,
+  fallback: "none",
+  rules: [],
 };
 
 export function getGroupKeyByConfig(url, configuration) {
   console.log(configuration.rules);
-  for (let key of configuration.rules.keys()) {
-    const list = configuration.rules.get(key);
-    console.log(key);
-    console.log(list);
-    for (let expression of list) {
-      if (isExpressionMatched(getDomain(url), expression)) {
-        return key;
+  for (let rule of configuration.rules) {
+    for (let pattern of rule.patterns) {
+      if (isExpressionMatched(getDomain(url), pattern)) {
+        return rule.name;
       }
     }
   }

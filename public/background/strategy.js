@@ -115,11 +115,11 @@ export const configStrategy = {
 
 function getFallbackStattegy(fallback) {
   switch (fallback) {
-    case 0:
+    case 'none':
       return noGroupStrategy;
-    case 1:
+    case 'domain':
       return domainStrategy;
-    case 2:
+    case 'sld':
       return secDomainStrategy;
     default:
       return noGroupStrategy;
