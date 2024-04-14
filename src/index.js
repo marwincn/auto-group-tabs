@@ -17,6 +17,7 @@ const messages = {
   "en-US": en_US,
 };
 
+// eslint-disable-next-line react/no-deprecated
 ReactDOM.render(
   <React.StrictMode>
     <IntlProvider

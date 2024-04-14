@@ -15,10 +15,9 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "INLINE_RUNTIME_CHUNK=false react-scripts --openssl-legacy-provider build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "INLINE_RUNTIME_CHUNK=false react-scripts --openssl-legacy-provider build"
   },
   "eslintConfig": {
     "extends": [

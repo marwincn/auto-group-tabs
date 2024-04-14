@@ -4,34 +4,16 @@ import PropTypes from "prop-types";
 import {
   Flex,
   Divider,
-  Card,
   Button,
   Select,
   Typography,
-  Modal,
   Form,
   Input,
+  Space,
+  Card,
 } from "antd";
-import { EditOutlined, DeleteOutlined, CloseOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import "./OptionsPage.css";
-
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 4 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 20 },
-  },
-};
-
-const formItemLayoutWithOutLabel = {
-  wrapperCol: {
-    xs: { span: 24, offset: 0 },
-    sm: { span: 20, offset: 4 },
-  },
-};
 
 class OptionsPage extends React.Component {
   static propTypes = {
@@ -41,33 +23,71 @@ class OptionsPage extends React.Component {
   constructor(props) {
     super(props);
     this.i18n = (key) => props.intl.formatMessage({ id: key });
+    this.form = React.createRef();
     this.state = {
-      configuration: {
-        rules: [],
-        fallback: 0,
-      },
+      isEditting: false,
       isCreateModalOpen: false,
       isModifyModalOpen: false,
     };
   }
 
-  componentDidMount() {
-    // return chrome.storage.sync.get(Object.keys(this.state), (config) => {
-    //   this.setState(config);
-    // });
-  }
+  componentDidMount = () => {
+    chrome.storage.sync.get(["configuration"], (data) => {
+      const configuration = this.deserialize(data.configuration);
+      this.form.current.setFieldsValue(configuration);
+    });
+  };
 
-  setIsCreateModalOpen(isOpen) {
-    this.setState({ isCreateModalOpen: isOpen });
-  }
+  editOrSaveButtomOnClick = () => {
+    if (!this.state.isEditting) {
+      // 让表单变成编辑态
+      this.setState({ isEditting: true });
+      return;
+    }
 
-  handleCreateOk() {}
+    const serialized = this.serialize(this.form.current.getFieldsValue());
+    console.log(serialized);
+    // 检查表单，然后保存配置信息，设置编辑状态为false
+    chrome.storage.sync.set({configuration: serialized}, () => {
+      this.setState({ isEditting: false });
+    });
+  };
 
-  setIsModifyModalOpen(isOpen) {
-    this.setState({ isModifyModalOpen: isOpen });
-  }
+  serialize = (fieldsValue) => {
+    const result = { ...fieldsValue };
+    if (fieldsValue && fieldsValue.rules) {
+      result.rules = fieldsValue.rules
+        .filter((rule) => rule)
+        .map((rule) => {
+          let newRule = { ...rule };
+          if (rule.patterns) {
+            newRule.patterns = rule.patterns
+              .filter((p) => p.pattern)
+              .map((p) => p.pattern);
+          }
+          return newRule;
+        });
+    }
+    return result;
+  };
 
-  handleModifyOk() {}
+  deserialize = (config) => {
+    const result = { ...config };
+    if (config && config.rules) {
+      result.rules = config.rules
+        .filter((rule) => rule)
+        .map((rule) => {
+          let newRule = { ...rule };
+          if (rule.patterns) {
+            newRule.patterns = rule.patterns.map((p) => {
+              return { pattern: p };
+            });
+          }
+          return newRule;
+        });
+    }
+    return result;
+  };
 
   render() {
     return (
@@ -77,103 +97,110 @@ class OptionsPage extends React.Component {
           vertical
           style={{ marginLeft: "10px", marginRight: "10px" }}
         >
-          <Typography.Title>分组规则</Typography.Title>
+          <Typography.Title>{this.i18n("config_page_title")}</Typography.Title>
           <Divider style={{ marginTop: "0" }} />
           <Button
-            type="primary"
-            onClick={() => this.setIsCreateModalOpen(true)}
+            type={this.state.isEditting ? "default" : "primary"}
+            onClick={this.editOrSaveButtomOnClick}
           >
-            新增自定义规则
+            {this.state.isEditting ? this.i18n("save") : this.i18n("edit")}
           </Button>
-          <Typography.Title level={5}>自定义规则：</Typography.Title>
-          <Card
-            title="分组名称: test"
-            size="small"
-            hoverable
-            style={{
-              width: "100%",
-            }}
-            actions={[
-              <EditOutlined key="编辑" />,
-              <DeleteOutlined key="删除" />,
-            ]}
-          >
-            <p className="patternName">www.google.com</p>
-            <p className="patternName">www.baidu.com</p>
-          </Card>
-
-          <Typography.Title level={5}>未匹配到自定义规则时：</Typography.Title>
-          <Select
-            defaultValue="0"
-            style={{ width: "100%" }}
-            onChange={() => {}}
-            options={[
-              { value: "0", label: "不分组" },
-              { value: "1", label: "按域名分组" },
-              { value: "2", label: "按二级域名分组" },
-            ]}
-          />
-        </Flex>
-
-        <Modal
-          title="新增自定义规则"
-          open={this.state.isCreateModalOpen}
-          onOk={this.handleCreateOk}
-          onCancel={() => {
-            this.setIsCreateModalOpen(false);
-          }}
-        >
           <Form
-            name="basic"
+            name="userConfiguration"
+            ref={this.form}
             onFinish={() => {}}
             onFinishFailed={() => {}}
             autoComplete="off"
+            disabled={!this.state.isEditting}
           >
-            <Form.Item label="分组名称" name="groupName" required>
-              <Input />
+            <Typography.Title level={5}>
+              {this.i18n("config_title_fallback")}
+            </Typography.Title>
+            <Form.Item name="fallback" initialValue="none">
+              <Select
+                style={{ width: "100%" }}
+                onChange={() => {}}
+                options={[
+                  { value: "none", label: this.i18n("option_none") },
+                  { value: "domain", label: this.i18n("option_domain") },
+                  { value: "sld", label: this.i18n("option_sld") },
+                ]}
+              />
             </Form.Item>
-            <Form.List name={"patterns"}>
-              {(fields, { add, remove }) => (
-                <>
-                  {fields.map((field, index) => (
-                    <Form.Item
-                    {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                    label={index === 0 ? '匹配规则' : ''}
-                    required
-                    key={field.key}
-                    >
-                      <Form.Item name={[field.name]}>
-                        <Input placeholder="pattern" />
-                      </Form.Item>
-                      {fields.length > 1 ? (
-                        <CloseOutlined
+            <Typography.Title level={5}>{this.i18n("config_title_custom_rule")}</Typography.Title>
+            <Form.List name="rules">
+              {(rules, { add, remove }) => (
+                <Space
+                  direction="vertical"
+                  size="small"
+                  style={{ display: "flex" }}
+                >
+                  {rules.map((rule) => (
+                    <Card
+                      size="small"
+                      title={`Rule ${rule.name + 1}`}
+                      key={rule.key}
+                      extra={
+                        <DeleteOutlined
                           onClick={() => {
-                            remove(field.name);
+                            remove(rule.name);
                           }}
                         />
-                      ) : null}
-                  </Form.Item>
+                      }
+                    >
+                      <Form.Item label={this.i18n("group_name")} name={[rule.name, "name"]}>
+                        <Input />
+                      </Form.Item>
+                      <Form.Item label={this.i18n("patterns")}>
+                        <Form.List name={[rule.name, "patterns"]}>
+                          {(patterns, patternOp) => (
+                            <Space
+                              direction="vertical"
+                              size="small"
+                              style={{ display: "flex" }}
+                            >
+                              {patterns.map((pattern) => (
+                                <div
+                                  key={pattern.key}
+                                  style={{ display: "flex" }}
+                                >
+                                  <Form.Item
+                                    noStyle
+                                    name={[pattern.name, "pattern"]}
+                                  >
+                                    <Input />
+                                  </Form.Item>
+                                  {patterns.length > 1 ? (
+                                    <DeleteOutlined
+                                      onClick={() => {
+                                        patternOp.remove(pattern.name);
+                                      }}
+                                    />
+                                  ) : null}
+                                </div>
+                              ))}
+                              <Button
+                                type="dashed"
+                                onClick={() => patternOp.add()}
+                                block
+                              >
+                                + {this.i18n("add_pattern")}
+                              </Button>
+                            </Space>
+                          )}
+                        </Form.List>
+                      </Form.Item>
+                    </Card>
                   ))}
+
                   <Button type="dashed" onClick={() => add()} block>
-                    + 添加规则
+                    + {this.i18n("add_rule")}
                   </Button>
-                </>
+                </Space>
               )}
             </Form.List>
           </Form>
-        </Modal>
-        <Modal
-          title="修改自定义规则"
-          open={this.state.isModifyModalOpen}
-          onOk={this.handleModifyOk}
-          onCancel={() => {
-            this.setIsModifyModalOpen(false);
-          }}
-        >
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-          <p>Some contents...</p>
-        </Modal>
+        </Flex>
       </div>
     );
   }

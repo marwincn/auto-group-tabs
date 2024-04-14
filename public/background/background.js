@@ -15,7 +15,7 @@ let userConfig = DEFAULT_CONFIG;
 const GROUP_STRATEGY_MAP = new Map();
 GROUP_STRATEGY_MAP.set(1, domainStrategy);
 GROUP_STRATEGY_MAP.set(2, secDomainStrategy);
-GROUP_STRATEGY_MAP.set(2, configStrategy);
+GROUP_STRATEGY_MAP.set(3, configStrategy);
 
 // 监听tab变更事件
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {

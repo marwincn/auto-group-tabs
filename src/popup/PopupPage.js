@@ -59,6 +59,7 @@ class PopupPage extends React.Component {
     const groupStrategyOptions = [
       { label: this.i18n("domain"), value: 1 },
       { label: this.i18n("sld"), value: 2 },
+      { label: this.i18n("configuration"), value: 3 },
     ];
 
     return (
@@ -100,6 +101,9 @@ class PopupPage extends React.Component {
           )}
           {this.state.groupStrategy === 2 && (
             <Alert message={this.i18n("sld_tip")} type="info" />
+          )}
+          {this.state.groupStrategy === 3 && (
+            <Button href="/index.html#options" target="chrome-extension://" block>{this.i18n("go_to_config")}</Button>
           )}
         </Form>
       </div>
