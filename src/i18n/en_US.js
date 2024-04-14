@@ -7,7 +7,7 @@ export default {
   domain_tip: "Full domain name. Match 'www.google.com' in https://www.google.com/",
   sld: "SLD",
   sld_tip: "Second Level Domain. Match 'google' in https://www.google.com/",
-  configuration: "Custom rules",
+  configuration: "Custom",
   go_to_config: "Go to Configuration",
   config_page_title: "Grouping Rules",
   save: "Save",
@@ -21,4 +21,7 @@ export default {
   patterns: "Matching Rules",
   add_pattern: "Add Matching Rule",
   add_rule: "Add Custom Rule",
+  group_name_validate_message: "Group name can not be empty",
+  pattern_validate_message: "Matching rule can not be empty",
+  tooltip_of_pattern: "Match browser tab page domain names, supporting wildcard matching using *",
 };

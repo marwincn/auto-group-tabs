@@ -21,4 +21,7 @@ export default {
   patterns: "匹配规则",
   add_pattern: "添加匹配规则",
   add_rule: "添加自定义规则",
+  group_name_validate_message: "分组名不能为空",
+  pattern_validate_message: "匹配规则不能为空",
+  tooltip_of_pattern: "匹配浏览器Tab页的域名，支持使用 * 进行模糊匹配",
 };

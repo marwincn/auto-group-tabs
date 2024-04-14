@@ -48,9 +48,14 @@ class OptionsPage extends React.Component {
     const serialized = this.serialize(this.form.current.getFieldsValue());
     console.log(serialized);
     // 检查表单，然后保存配置信息，设置编辑状态为false
-    chrome.storage.sync.set({ configuration: serialized }, () => {
-      this.setState({ isEditting: false });
-    });
+    this.form.current
+      .validateFields({ recursive: true })
+      .then(() => {
+        chrome.storage.sync.set({ configuration: serialized }, () => {
+          this.setState({ isEditting: false });
+        });
+      })
+      .catch(() => {});
   };
 
   serialize = (fieldsValue) => {
@@ -122,6 +127,7 @@ class OptionsPage extends React.Component {
             name="userConfiguration"
             ref={this.form}
             disabled={!this.state.isEditting}
+            autoComplete="false"
           >
             <Typography.Title level={5}>
               {this.i18n("config_title_fallback")}
@@ -173,8 +179,14 @@ class OptionsPage extends React.Component {
                         labelAlign="left"
                         label={this.i18n("group_name")}
                         name={[rule.name, "name"]}
+                        rules={[
+                          {
+                            required: true,
+                            message: this.i18n("group_name_validate_message"),
+                          },
+                        ]}
                       >
-                        <Input />
+                        <Input placeholder="Google" />
                       </Form.Item>
                       <Form.Item
                         label={this.i18n("patterns")}
@@ -185,8 +197,16 @@ class OptionsPage extends React.Component {
                           span: 18,
                         }}
                         labelAlign="left"
+                        required
+                        tooltip={{
+                          title: this.i18n("tooltip_of_pattern"),
+                          color: "blue",
+                        }}
                       >
-                        <Form.List name={[rule.name, "patterns"]}>
+                        <Form.List
+                          name={[rule.name, "patterns"]}
+                          initialValue={[{ pattern: undefined }]}
+                        >
                           {(patterns, patternOp) => (
                             <Space
                               direction="vertical"
@@ -201,8 +221,16 @@ class OptionsPage extends React.Component {
                                   <Form.Item
                                     noStyle
                                     name={[pattern.name, "pattern"]}
+                                    rules={[
+                                      {
+                                        required: true,
+                                        message: this.i18n(
+                                          "pattern_validate_message"
+                                        ),
+                                      },
+                                    ]}
                                   >
-                                    <Input />
+                                    <Input placeholder="*.google.com" />
                                   </Form.Item>
                                   {patterns.length > 1 ? (
                                     <DeleteOutlined
