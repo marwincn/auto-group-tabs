@@ -1,7 +1,7 @@
 {
   "name": "Auto Group Tabs",
   "description": "",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "manifest_version": 3,
   "background": {
     "service_worker": "background/background.js",
