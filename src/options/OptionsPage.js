@@ -33,8 +33,7 @@ class OptionsPage extends React.Component {
 
   componentDidMount = () => {
     chrome.storage.sync.get(["configuration"], (data) => {
-      const configuration = this.deserialize(data.configuration);
-      this.form.current.setFieldsValue(configuration);
+      this.form.current.setFieldsValue(data.configuration);
     });
   };
 
@@ -45,53 +44,17 @@ class OptionsPage extends React.Component {
       return;
     }
 
-    const serialized = this.serialize(this.form.current.getFieldsValue());
-    console.log(serialized);
+    const configuration = this.form.current.getFieldsValue();
+    console.log(configuration);
     // 检查表单，然后保存配置信息，设置编辑状态为false
     this.form.current
       .validateFields({ recursive: true })
       .then(() => {
-        chrome.storage.sync.set({ configuration: serialized }, () => {
+        chrome.storage.sync.set({ configuration: configuration }, () => {
           this.setState({ isEditting: false });
         });
       })
       .catch(() => {});
-  };
-
-  serialize = (fieldsValue) => {
-    const result = { ...fieldsValue };
-    if (fieldsValue && fieldsValue.rules) {
-      result.rules = fieldsValue.rules
-        .filter((rule) => rule)
-        .map((rule) => {
-          let newRule = { ...rule };
-          if (rule.patterns) {
-            newRule.patterns = rule.patterns
-              .filter((p) => p && p.pattern)
-              .map((p) => p.pattern);
-          }
-          return newRule;
-        });
-    }
-    return result;
-  };
-
-  deserialize = (config) => {
-    const result = { ...config };
-    if (config && config.rules) {
-      result.rules = config.rules
-        .filter((rule) => rule)
-        .map((rule) => {
-          let newRule = { ...rule };
-          if (rule.patterns) {
-            newRule.patterns = rule.patterns.map((p) => {
-              return { pattern: p };
-            });
-          }
-          return newRule;
-        });
-    }
-    return result;
   };
 
   render() {

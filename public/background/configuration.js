@@ -8,9 +8,11 @@ export const defaultConfiguration = {
 export function getGroupKeyByConfig(url, configuration) {
   console.log(configuration.rules);
   for (let rule of configuration.rules) {
-    for (let pattern of rule.patterns) {
-      if (isExpressionMatched(getDomain(url), pattern)) {
-        return rule.name;
+    for (let obj of rule.patterns) {
+      if (obj.pattern) {
+        if (isExpressionMatched(getDomain(url), obj.pattern)) {
+          return rule.name;
+        }
       }
     }
   }
