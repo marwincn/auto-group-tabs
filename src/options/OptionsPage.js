@@ -48,7 +48,7 @@ class OptionsPage extends React.Component {
     const serialized = this.serialize(this.form.current.getFieldsValue());
     console.log(serialized);
     // 检查表单，然后保存配置信息，设置编辑状态为false
-    chrome.storage.sync.set({configuration: serialized}, () => {
+    chrome.storage.sync.set({ configuration: serialized }, () => {
       this.setState({ isEditting: false });
     });
   };
@@ -62,7 +62,7 @@ class OptionsPage extends React.Component {
           let newRule = { ...rule };
           if (rule.patterns) {
             newRule.patterns = rule.patterns
-              .filter((p) => p.pattern)
+              .filter((p) => p && p.pattern)
               .map((p) => p.pattern);
           }
           return newRule;
@@ -95,22 +95,32 @@ class OptionsPage extends React.Component {
         <Flex
           gap="small"
           vertical
-          style={{ marginLeft: "10px", marginRight: "10px" }}
+          style={{ marginTop: "50px", marginLeft: "10px", marginRight: "10px" }}
         >
-          <Typography.Title>{this.i18n("config_page_title")}</Typography.Title>
-          <Divider style={{ marginTop: "0" }} />
-          <Button
-            type={this.state.isEditting ? "default" : "primary"}
-            onClick={this.editOrSaveButtomOnClick}
-          >
-            {this.state.isEditting ? this.i18n("save") : this.i18n("edit")}
-          </Button>
+          <Flex align="flex-end" justify="space-between">
+            <Typography.Title style={{ margin: 0 }}>
+              {this.i18n("config_page_title")}
+            </Typography.Title>
+            <Button
+              type={this.state.isEditting ? "default" : "primary"}
+              style={
+                this.state.isEditting
+                  ? {
+                      background: "#76EE00",
+                      borderColor: "#76EE00",
+                      color: "#ffffff",
+                    }
+                  : null
+              }
+              onClick={this.editOrSaveButtomOnClick}
+            >
+              {this.state.isEditting ? this.i18n("save") : this.i18n("edit")}
+            </Button>
+          </Flex>
+          <Divider style={{ marginBottom: 0 }} />
           <Form
             name="userConfiguration"
             ref={this.form}
-            onFinish={() => {}}
-            onFinishFailed={() => {}}
-            autoComplete="off"
             disabled={!this.state.isEditting}
           >
             <Typography.Title level={5}>
@@ -127,7 +137,9 @@ class OptionsPage extends React.Component {
                 ]}
               />
             </Form.Item>
-            <Typography.Title level={5}>{this.i18n("config_title_custom_rule")}</Typography.Title>
+            <Typography.Title level={5}>
+              {this.i18n("config_title_custom_rule")}
+            </Typography.Title>
             <Form.List name="rules">
               {(rules, { add, remove }) => (
                 <Space
@@ -138,20 +150,42 @@ class OptionsPage extends React.Component {
                   {rules.map((rule) => (
                     <Card
                       size="small"
-                      title={`Rule ${rule.name + 1}`}
                       key={rule.key}
+                      hoverable
+                      style={{ border: "1px solid #B5B5B5" }}
                       extra={
                         <DeleteOutlined
                           onClick={() => {
-                            remove(rule.name);
+                            if (this.state.isEditting) {
+                              remove(rule.name);
+                            }
                           }}
                         />
                       }
                     >
-                      <Form.Item label={this.i18n("group_name")} name={[rule.name, "name"]}>
+                      <Form.Item
+                        labelCol={{
+                          span: 6,
+                        }}
+                        wrapperCol={{
+                          span: 18,
+                        }}
+                        labelAlign="left"
+                        label={this.i18n("group_name")}
+                        name={[rule.name, "name"]}
+                      >
                         <Input />
                       </Form.Item>
-                      <Form.Item label={this.i18n("patterns")}>
+                      <Form.Item
+                        label={this.i18n("patterns")}
+                        labelCol={{
+                          span: 6,
+                        }}
+                        wrapperCol={{
+                          span: 18,
+                        }}
+                        labelAlign="left"
+                      >
                         <Form.List name={[rule.name, "patterns"]}>
                           {(patterns, patternOp) => (
                             <Space
@@ -172,8 +206,11 @@ class OptionsPage extends React.Component {
                                   </Form.Item>
                                   {patterns.length > 1 ? (
                                     <DeleteOutlined
+                                      style={{ margin: "8px" }}
                                       onClick={() => {
-                                        patternOp.remove(pattern.name);
+                                        if (this.state.isEditting) {
+                                          patternOp.remove(pattern.name);
+                                        }
                                       }}
                                     />
                                   ) : null}
