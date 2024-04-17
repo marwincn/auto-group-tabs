@@ -89,13 +89,7 @@ export const configStrategy = {
         );
   },
   querySameTabs: async (tab, userConfig) => {
-    const domain = getGroupKeyByConfig(tab.url, userConfig.configuration);
-    if (!domain) {
-      return getFallbackStattegy(
-        userConfig.configuration.fallback
-      ).querySameTabs(tab);
-    }
-
+    const domain = configStrategy.getGroupTitle(tab, userConfig);
     let tabs;
     await chrome.tabs
       .query({
@@ -106,7 +100,7 @@ export const configStrategy = {
         tabs = allTabs.filter(
           (t) =>
             t.url &&
-            domain === getGroupKeyByConfig(t.url, userConfig.configuration)
+            domain === configStrategy.getGroupTitle(t, userConfig)
         );
       });
     return tabs;
