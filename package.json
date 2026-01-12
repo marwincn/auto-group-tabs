@@ -17,7 +17,7 @@
   "scripts": {
     "test": "react-scripts test",
     "start": "react-scripts --openssl-legacy-provider start",
-    "build": "INLINE_RUNTIME_CHUNK=false react-scripts --openssl-legacy-provider build"
+    "build": "cross-env INLINE_RUNTIME_CHUNK=false react-scripts --openssl-legacy-provider build"
   },
   "eslintConfig": {
     "extends": [
@@ -43,6 +43,7 @@
   "devDependencies": {
     "@types/chrome": "^0.0.188",
     "babel-eslint": "^10.1.0",
+    "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
     "eslint-plugin-react": "^7.26.1"
   }

@@ -1,4 +1,4 @@
-import { getGroupKeyByConfig, getGroupTitleByConfig } from "./configuration.js";
+import { getGroupKeyByConfig, getGroupTitleByConfig, getGroupColorByConfig } from "./configuration.js";
 import { getDomain, getSecDomain } from "./utils.js";
 
 // 不做分组的策略
@@ -85,8 +85,11 @@ export const configStrategy = {
     return result
       ? result
       : getFallbackStattegy(userConfig.configuration.fallback).getGroupTitle(
-          tab
-        );
+        tab
+      );
+  },
+  getGroupColor: (tab, userConfig) => {
+    return getGroupColorByConfig(tab.url, userConfig.configuration);
   },
   querySameTabs: async (tab, userConfig) => {
     const domain = configStrategy.getGroupTitle(tab, userConfig);
