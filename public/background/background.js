@@ -81,7 +81,15 @@ function groupTabs(tab, strategy) {
             chrome.tabs.group({ tabIds, groupId: tabGroups[0].id });
           } else {
             chrome.tabs.group({ tabIds }).then((groupId) => {
-              chrome.tabGroups.update(groupId, { title: groupTitle });
+              const updateOptions = { title: groupTitle };
+              // 如果策略支持自定义颜色，则应用颜色
+              if (strategy.getGroupColor) {
+                const color = strategy.getGroupColor(tab, userConfig);
+                if (color) {
+                  updateOptions.color = color;
+                }
+              }
+              chrome.tabGroups.update(groupId, updateOptions);
             });
           }
         });
@@ -109,32 +117,40 @@ function groupAllTabs() {
   chrome.storage.sync.get(Object.keys(DEFAULT_CONFIG), (config) => {
     userConfig = { ...DEFAULT_CONFIG, ...config };
     chrome.tabs
-    .query({ windowId: chrome.windows.WINDOW_ID_CURRENT, pinned: false })
-    .then((tabs) => {
-      const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
-      // 按groupTitle分组，key为groupTitle，value为tabs
-      let tabGroups = {};
-      tabs.forEach((tab) => {
-        const groupTitle = strategy.getGroupTitle(tab, userConfig);
-        if (groupTitle) {
-          if (!tabGroups[groupTitle]) {
-            tabGroups[groupTitle] = [];
+      .query({ windowId: chrome.windows.WINDOW_ID_CURRENT, pinned: false })
+      .then((tabs) => {
+        const strategy = GROUP_STRATEGY_MAP.get(userConfig.groupStrategy);
+        // 按groupTitle分组，key为groupTitle，value为tabs
+        let tabGroups = {};
+        tabs.forEach((tab) => {
+          const groupTitle = strategy.getGroupTitle(tab, userConfig);
+          if (groupTitle) {
+            if (!tabGroups[groupTitle]) {
+              tabGroups[groupTitle] = [];
+            }
+            tabGroups[groupTitle].push(tab);
           }
-          tabGroups[groupTitle].push(tab);
+        });
+        // 调用chrome API 进行tabs分组
+        for (const groupTitle in tabGroups) {
+          const tabIds = tabGroups[groupTitle].map((tab) => tab.id);
+          if (tabGroups[groupTitle].length >= userConfig.groupTabNum) {
+            chrome.tabs.group({ tabIds }).then((groupId) => {
+              const updateOptions = { title: groupTitle };
+              // 如果策略支持自定义颜色，则应用颜色
+              if (strategy.getGroupColor && tabGroups[groupTitle].length > 0) {
+                const color = strategy.getGroupColor(tabGroups[groupTitle][0], userConfig);
+                if (color) {
+                  updateOptions.color = color;
+                }
+              }
+              chrome.tabGroups.update(groupId, updateOptions);
+            });
+          } else {
+            chrome.tabs.ungroup(tabIds);
+          }
         }
       });
-      // 调用chrome API 进行tabs分组
-      for (const groupTitle in tabGroups) {
-        const tabIds = tabGroups[groupTitle].map((tab) => tab.id);
-        if (tabGroups[groupTitle].length >= userConfig.groupTabNum) {
-          chrome.tabs.group({ tabIds }).then((groupId) => {
-            chrome.tabGroups.update(groupId, { title: groupTitle });
-          });
-        } else {
-          chrome.tabs.ungroup(tabIds);
-        }
-      }
-    });
   });
 }
 

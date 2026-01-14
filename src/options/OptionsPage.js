@@ -54,7 +54,7 @@ class OptionsPage extends React.Component {
           this.setState({ isEditting: false });
         });
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   render() {
@@ -74,10 +74,10 @@ class OptionsPage extends React.Component {
               style={
                 this.state.isEditting
                   ? {
-                      background: "#76EE00",
-                      borderColor: "#76EE00",
-                      color: "#ffffff",
-                    }
+                    background: "#76EE00",
+                    borderColor: "#76EE00",
+                    color: "#ffffff",
+                  }
                   : null
               }
               onClick={this.editOrSaveButtomOnClick}
@@ -98,7 +98,7 @@ class OptionsPage extends React.Component {
             <Form.Item name="fallback" initialValue="none">
               <Select
                 style={{ width: "100%" }}
-                onChange={() => {}}
+                onChange={() => { }}
                 options={[
                   { value: "none", label: this.i18n("option_none") },
                   { value: "domain", label: this.i18n("option_domain") },
@@ -150,6 +150,177 @@ class OptionsPage extends React.Component {
                         ]}
                       >
                         <Input placeholder="Google" />
+                      </Form.Item>
+                      <Form.Item
+                        labelCol={{
+                          span: 6,
+                        }}
+                        wrapperCol={{
+                          span: 18,
+                        }}
+                        labelAlign="left"
+                        label={this.i18n("group_color")}
+                        name={[rule.name, "color"]}
+                        initialValue="grey"
+                      >
+                        <Select
+                          style={{ width: "100%" }}
+                          options={[
+                            {
+                              value: "grey",
+                              label: (
+                                <span>
+                                  <span style={{
+                                    display: "inline-block",
+                                    width: "16px",
+                                    height: "16px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#5F6368",
+                                    marginRight: "8px",
+                                    verticalAlign: "middle"
+                                  }}></span>
+                                  {this.i18n("color_grey")}
+                                </span>
+                              )
+                            },
+                            {
+                              value: "blue",
+                              label: (
+                                <span>
+                                  <span style={{
+                                    display: "inline-block",
+                                    width: "16px",
+                                    height: "16px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#1A73E8",
+                                    marginRight: "8px",
+                                    verticalAlign: "middle"
+                                  }}></span>
+                                  {this.i18n("color_blue")}
+                                </span>
+                              )
+                            },
+                            {
+                              value: "red",
+                              label: (
+                                <span>
+                                  <span style={{
+                                    display: "inline-block",
+                                    width: "16px",
+                                    height: "16px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#D93025",
+                                    marginRight: "8px",
+                                    verticalAlign: "middle"
+                                  }}></span>
+                                  {this.i18n("color_red")}
+                                </span>
+                              )
+                            },
+                            {
+                              value: "yellow",
+                              label: (
+                                <span>
+                                  <span style={{
+                                    display: "inline-block",
+                                    width: "16px",
+                                    height: "16px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#F9AB00",
+                                    marginRight: "8px",
+                                    verticalAlign: "middle"
+                                  }}></span>
+                                  {this.i18n("color_yellow")}
+                                </span>
+                              )
+                            },
+                            {
+                              value: "green",
+                              label: (
+                                <span>
+                                  <span style={{
+                                    display: "inline-block",
+                                    width: "16px",
+                                    height: "16px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#1E8E3E",
+                                    marginRight: "8px",
+                                    verticalAlign: "middle"
+                                  }}></span>
+                                  {this.i18n("color_green")}
+                                </span>
+                              )
+                            },
+                            {
+                              value: "pink",
+                              label: (
+                                <span>
+                                  <span style={{
+                                    display: "inline-block",
+                                    width: "16px",
+                                    height: "16px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#D01884",
+                                    marginRight: "8px",
+                                    verticalAlign: "middle"
+                                  }}></span>
+                                  {this.i18n("color_pink")}
+                                </span>
+                              )
+                            },
+                            {
+                              value: "purple",
+                              label: (
+                                <span>
+                                  <span style={{
+                                    display: "inline-block",
+                                    width: "16px",
+                                    height: "16px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#8E24AA",
+                                    marginRight: "8px",
+                                    verticalAlign: "middle"
+                                  }}></span>
+                                  {this.i18n("color_purple")}
+                                </span>
+                              )
+                            },
+                            {
+                              value: "cyan",
+                              label: (
+                                <span>
+                                  <span style={{
+                                    display: "inline-block",
+                                    width: "16px",
+                                    height: "16px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#00ACC1",
+                                    marginRight: "8px",
+                                    verticalAlign: "middle"
+                                  }}></span>
+                                  {this.i18n("color_cyan")}
+                                </span>
+                              )
+                            },
+                            {
+                              value: "orange",
+                              label: (
+                                <span>
+                                  <span style={{
+                                    display: "inline-block",
+                                    width: "16px",
+                                    height: "16px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#E8710A",
+                                    marginRight: "8px",
+                                    verticalAlign: "middle"
+                                  }}></span>
+                                  {this.i18n("color_orange")}
+                                </span>
+                              )
+                            },
+                          ]}
+                        />
                       </Form.Item>
                       <Form.Item
                         label={this.i18n("patterns")}

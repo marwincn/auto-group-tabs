@@ -23,6 +23,20 @@ export function getGroupTitleByConfig(url, configuration) {
   return getGroupKeyByConfig(url, configuration);
 }
 
+export function getGroupColorByConfig(url, configuration) {
+  console.log(configuration.rules);
+  for (let rule of configuration.rules) {
+    for (let obj of rule.patterns) {
+      if (obj.pattern) {
+        if (isExpressionMatched(getDomain(url), obj.pattern)) {
+          return rule.color || "grey";
+        }
+      }
+    }
+  }
+  return null;
+}
+
 function isExpressionMatched(url, expression) {
   // 转换表达式中的 * 为正则表达式中的 .*，并转义其他正则元字符
   const regexPattern = expression.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
