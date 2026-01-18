@@ -339,7 +339,7 @@ class OptionsPage extends React.Component {
                       >
                         <Form.List
                           name={[rule.name, "patterns"]}
-                          initialValue={[{ pattern: undefined }]}
+                          initialValue={[{ pattern: undefined, matchType: "domain" }]}
                         >
                           {(patterns, patternOp) => (
                             <Space
@@ -350,8 +350,27 @@ class OptionsPage extends React.Component {
                               {patterns.map((pattern) => (
                                 <div
                                   key={pattern.key}
-                                  style={{ display: "flex" }}
+                                  style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}
                                 >
+                                  <Form.Item
+                                    noStyle
+                                    name={[pattern.name, "matchType"]}
+                                    initialValue="domain"
+                                  >
+                                    <Select 
+                                      style={{ width: "140px" }}
+                                      options={[
+                                        { 
+                                          value: "domain", 
+                                          label: this.i18n("match_type_domain") 
+                                        },
+                                        { 
+                                          value: "url", 
+                                          label: this.i18n("match_type_url") 
+                                        },
+                                      ]}
+                                    />
+                                  </Form.Item>
                                   <Form.Item
                                     noStyle
                                     name={[pattern.name, "pattern"]}
@@ -363,12 +382,13 @@ class OptionsPage extends React.Component {
                                         ),
                                       },
                                     ]}
+                                    style={{ flex: 1, minWidth: 0 }}
                                   >
-                                    <Input placeholder="*.google.com" />
+                                    <Input placeholder="*.google.com" style={{ width: "100%" }} />
                                   </Form.Item>
                                   {patterns.length > 1 ? (
                                     <DeleteOutlined
-                                      style={{ margin: "8px" }}
+                                      style={{ margin: "8px", marginTop: "4px", cursor: "pointer" }}
                                       onClick={() => {
                                         if (this.state.isEditting) {
                                           patternOp.remove(pattern.name);
