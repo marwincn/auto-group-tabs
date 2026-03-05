@@ -78,7 +78,22 @@ function groupTabs(tab, strategy) {
         })
         .then((tabGroups) => {
           if (tabGroups && tabGroups.length > 0) {
-            chrome.tabs.group({ tabIds, groupId: tabGroups[0].id });
+            const groupId = tabGroups[0].id;
+            chrome.tabs.query({ groupId }).then((existingGroupTabs) => {
+              if (!existingGroupTabs || existingGroupTabs.length === 0) {
+                chrome.tabs.group({ tabIds, groupId });
+                return;
+              }
+              existingGroupTabs.sort((a, b) => a.index - b.index);
+              const groupTabIds = existingGroupTabs.map((t) => t.id);
+              const tabsToMove = tabIds.filter((id) => !groupTabIds.includes(id));
+              if (tabsToMove.length > 0) {
+                const lastTab = existingGroupTabs[existingGroupTabs.length - 1];
+                chrome.tabs.move(tabsToMove, { index: lastTab.index + 1 }).then(() => {
+                  chrome.tabs.group({ tabIds: tabsToMove, groupId });
+                });
+              }
+            });
           } else {
             chrome.tabs.group({ tabIds }).then((groupId) => {
               const updateOptions = { title: groupTitle };
