@@ -11,6 +11,23 @@ const DEFAULT_CONFIG = {
 // 全局的用户配置
 let userConfig = DEFAULT_CONFIG;
 
+// 关闭自动分组时，解除已经存在的标签组。仅仅停止监听不会删除 Chrome
+// 已经创建的组，这些组还会被 Chrome 的会话恢复功能继续保留。
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== "sync" || !changes.enableAutoGroup) {
+    return;
+  }
+
+  userConfig = {
+    ...userConfig,
+    enableAutoGroup: changes.enableAutoGroup.newValue,
+  };
+
+  if (changes.enableAutoGroup.newValue === false) {
+    ungroupAllTabs();
+  }
+});
+
 // 定义分组策略
 const GROUP_STRATEGY_MAP = new Map();
 GROUP_STRATEGY_MAP.set(1, domainStrategy);
@@ -57,6 +74,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 function groupTabs(tab, strategy) {
   strategy.querySameTabs(tab, userConfig).then((tabs) => {
+    // 查询标签是异步操作。用户可能在查询期间关闭自动分组，不能再继续
+    // 使用查询结果创建分组。
+    if (!userConfig.enableAutoGroup) {
+      return;
+    }
+
     if (tabs.length === 0) {
       console.log("no same tab for:" + tab);
       return;
@@ -77,11 +100,19 @@ function groupTabs(tab, strategy) {
           windowId: chrome.windows.WINDOW_ID_CURRENT,
         })
         .then((tabGroups) => {
+          if (!userConfig.enableAutoGroup) {
+            return;
+          }
+
           if (tabGroups && tabGroups.length > 0) {
             const groupId = tabGroups[0].id;
             chrome.tabs.query({ groupId }).then((existingGroupTabs) => {
+              if (!userConfig.enableAutoGroup) {
+                return;
+              }
+
               if (!existingGroupTabs || existingGroupTabs.length === 0) {
-                chrome.tabs.group({ tabIds, groupId });
+                autoGroupTabs(tabIds, groupId);
                 return;
               }
               existingGroupTabs.sort((a, b) => a.index - b.index);
@@ -90,12 +121,16 @@ function groupTabs(tab, strategy) {
               if (tabsToMove.length > 0) {
                 const lastTab = existingGroupTabs[existingGroupTabs.length - 1];
                 chrome.tabs.move(tabsToMove, { index: lastTab.index + 1 }).then(() => {
-                  chrome.tabs.group({ tabIds: tabsToMove, groupId });
+                  autoGroupTabs(tabsToMove, groupId);
                 });
               }
             });
           } else {
-            chrome.tabs.group({ tabIds }).then((groupId) => {
+            autoGroupTabs(tabIds).then((groupId) => {
+              if (groupId === null) {
+                return;
+              }
+
               const updateOptions = { title: groupTitle };
               // 如果策略支持自定义颜色，则应用颜色
               if (strategy.getGroupColor) {
@@ -110,6 +145,39 @@ function groupTabs(tab, strategy) {
         });
     }
   });
+}
+
+async function autoGroupTabs(tabIds, groupId) {
+  if (!userConfig.enableAutoGroup) {
+    return null;
+  }
+
+  const options = groupId === undefined ? { tabIds } : { tabIds, groupId };
+  const resultingGroupId = await chrome.tabs.group(options);
+
+  // 分组请求发出后开关也可能被关闭。此时 storage 监听器的第一次清理
+  // 可能已经执行完，需要在 API 返回后补一次清理。
+  if (!userConfig.enableAutoGroup) {
+    await chrome.tabs.ungroup(tabIds);
+    return null;
+  }
+
+  return resultingGroupId;
+}
+
+async function ungroupAllTabs() {
+  try {
+    const tabs = await chrome.tabs.query({ pinned: false });
+    const groupedTabIds = tabs
+      .filter((tab) => tab.groupId !== chrome.tabGroups.TAB_GROUP_ID_NONE)
+      .map((tab) => tab.id);
+
+    if (groupedTabIds.length > 0) {
+      await chrome.tabs.ungroup(groupedTabIds);
+    }
+  } catch (error) {
+    console.error("Failed to clear tab groups", error);
+  }
 }
 
 // 监听一键分组点击事件
